@@ -9,3 +9,4 @@ RUN apt-get update &&   \
         php-mysql       \
         php-zip
 
+COPY cache-control.ini /opt/bitnami/php/etc/conf.d/
