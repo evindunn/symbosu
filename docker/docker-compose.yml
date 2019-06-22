@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 services:
   nginx:
     image: bitnami/nginx
@@ -36,3 +36,5 @@ services:
 
 volumes:
   vol-symbiota-db:
+    name: vol-symbiota-db
+

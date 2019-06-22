@@ -19,8 +19,8 @@ flush();
 
 <!-- Bootstrap Deps -->
 <script
-  src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-  integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
   crossorigin="anonymous">
 </script>
 <script
@@ -41,6 +41,8 @@ flush();
   crossorigin="anonymous">
 </script>
 
+<script type="text/javascript" src="<?php echo $clientRoot . '/js/autocomplete.js'; ?>"></script>
+
 <style>
   #navbar-container {
     position: relative;
@@ -50,6 +52,8 @@ flush();
 
   #navbar-background {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 75%;
     z-index: -1;
@@ -79,84 +83,120 @@ flush();
 </style>
 
 <!-- Navbar -->
-<div id="navbar-container">
+<!-- <div id="navbar-container"> -->
+<nav class="navbar navbar-expand-lg sticky-top">
   <div id="navbar-background" class="shadow"></div>
-  <nav class="navbar navbar-expand-lg sticky">
-    <a class="navbar-brand" href="<?php echo $clientRoot; ?>/index.php">
-      <img src="<?php echo $clientRoot; ?>/images/layout/new-logo.png" alt="Oregon Flora">
-    </a>
+  <a class="navbar-brand" href="<?php echo $clientRoot; ?>/index.php">
+    <img src="<?php echo $clientRoot; ?>/images/layout/new-logo.png" alt="Oregon Flora">
+  </a>
 
-    <div class="collapse navbar-collapse">
-      <ul class="navbar-nav mr-auto ml-auto w-100">
-        <!-- Explore our Site -->
-        <li class="nav-item dropdown hover-dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="explore">
-            Explore Our Site
-          </a>
-          <div class="dropdown-menu" aria-labelledby="explore">
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/spatial/index.php">Mapping</a>
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/checklists/dynamicmap.php?interface=key">Interactive Key</a>
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/projects/index.php">Plant Inventories</a>
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/collections/harvestparams.php?db[]=5,8,10,7,238,239,240,241">OSU Herbarium</a>
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/garden/index.php">Gardening with Natives</a>
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/imagelib/search.php">Image Search</a>
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/taxa/admin/taxonomydisplay.php">Taxonomic Tree</a>
-          </div>
-        </li>
+  <ul class="navbar-nav">
+    <!-- Explore our Site -->
+    <li class="nav-item dropdown hover-dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="explore">
+        Explore Our Site
+      </a>
+      <div class="dropdown-menu" aria-labelledby="explore">
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/spatial/index.php">Mapping</a>
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/checklists/dynamicmap.php?interface=key">Interactive Key</a>
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/projects/index.php">Plant Inventories</a>
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/collections/harvestparams.php?db[]=5,8,10,7,238,239,240,241">OSU Herbarium</a>
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/garden/index.php">Gardening with Natives</a>
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/imagelib/search.php">Image Search</a>
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/taxa/admin/taxonomydisplay.php">Taxonomic Tree</a>
+      </div>
+    </li>
 
-        <!-- Resources -->
-        <li class="nav-item dropdown hover-dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="resources">
-            Resources
-          </a>
-          <div class="dropdown-menu" aria-labelledby="resources">
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/whats-new.php">What's New</a>
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/newsletters/index.php">Archived Newsletter</a>
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/links.php">Links</a>
-          </div>
-        </li>
+    <!-- Resources -->
+    <li class="nav-item dropdown hover-dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="resources">
+        Resources
+      </a>
+      <div class="dropdown-menu" aria-labelledby="resources">
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/whats-new.php">What's New</a>
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/newsletters/index.php">Archived Newsletter</a>
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/links.php">Links</a>
+      </div>
+    </li>
 
-        <!-- About -->
-        <li class="nav-item dropdown hover-dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="about">
-            About
-          </a>
-          <div class="dropdown-menu" aria-labelledby="about">
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/mission.php">Mission and History</a>
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/contact.php">Contact Info</a>
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/project-participants.php">Project Participants</a>
-          </div>
-        </li>
+    <!-- About -->
+    <li class="nav-item dropdown hover-dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="about">
+        About
+      </a>
+      <div class="dropdown-menu" aria-labelledby="about">
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/mission.php">Mission and History</a>
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/contact.php">Contact Info</a>
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/project-participants.php">Project Participants</a>
+      </div>
+    </li>
 
-        <!-- Support -->
-        <li class="nav-item dropdown hover-dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="support">
-            Support
-          </a>
-          <div class="dropdown-menu" aria-labelledby="support">
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/donate.php">Donate</a>
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/volunteer.php">Volunteer</a>
-            <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/merchandise.php">Merchandise</a>
-          </div>
-        </li>
-      </ul> <!-- Dropdowns -->
-    </div> <!-- .navbar-collapse -->
+    <!-- Support -->
+    <li class="nav-item dropdown hover-dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="support">
+        Support
+      </a>
+      <div class="dropdown-menu" aria-labelledby="support">
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/donate.php">Donate</a>
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/volunteer.php">Volunteer</a>
+        <a class="dropdown-item" href="<?php echo $clientRoot; ?>/pages/merchandise.php">Merchandise</a>
+      </div>
+    </li>
+  </ul> <!-- Dropdowns -->
 
-    <!-- Search -->
-    <form class="form-inline" name="quick-search" id="quick-search">
-      <div class="input-group">
-        <input id="search-text" name="search-text" type="text" class="form-control">
-        <div class="input-group-append m-0">
-          <button id="search-btn" class="btn dropdown-toggle drk-grn m-0" data-toggle="dropdown" type="button">Search</button>
-          <div class="dropdown-menu" aria-labelledby="search-btn">
-            <a id="search-type-cn" class="dropdown-item" href="#">Common Name Search</a>
-            <a id="search-type-tx" class="dropdown-item" href="#">Taxon Search</a>
-          </div>
-          <input name="search-type" type="text" value="cn" style="display: none;">
+  <!-- Search -->
+  <form
+    class="form-inline ml-auto"
+    name="quick-search"
+    id="quick-search"
+    autocomplete="off"
+    action="<?php echo $clientroot . '/taxa/index.php'?>">
+    <div class="input-group">
+      <input id="taxon" name="taxon" type="text" class="form-control dropdown-toggle" data-toggle="dropdown">
+      <div id="autocomplete-results" class="dropdown-menu" aria-labelledby="taxon">
+        <a class="dropdown-item" onclick="document.getElementById('taxon').value = this.innerHTML;" href="#"></a>
+        <a class="dropdown-item" onclick="document.getElementById('taxon').value = this.innerHTML;" href="#"></a>
+        <a class="dropdown-item" onclick="document.getElementById('taxon').value = this.innerHTML;" href="#"></a>
+        <a class="dropdown-item" onclick="document.getElementById('taxon').value = this.innerHTML;" href="#"></a>
+        <a class="dropdown-item" onclick="document.getElementById('taxon').value = this.innerHTML;" href="#"></a>
+      </div>
+      <div class="input-group-append m-0">
+        <button id="search-btn" class="btn dropdown-toggle drk-grn m-0" data-toggle="dropdown" type="button">Search</button>
+        <div class="dropdown-menu" aria-labelledby="search-btn">
+          <a id="search-type-cn" class="dropdown-item" href="#">Common Name Search</a>
+          <a id="search-type-tx" class="dropdown-item" href="#">Taxon Search</a>
         </div>
       </div>
-    </form>
-    <script>
+    </div>
+  </form>
+  <script>
+    window.onload = () => {
+      const taxonTerms = "<?php echo $clientRoot . '/collections/rpc/taxalist.php?term=' ?>";
+
+      function getAutocompleteTerms(url, searchTerm) {
+        return new Promise((resolve, reject) => {
+          try {
+            $.getJSON(url + searchTerm, (data) => {
+              resolve(data);
+            });
+          } catch(err) {
+            reject(err);
+          }
+        });
+      }
+
+      $("#taxon").bind("keydown", (event) => {
+        getAutocompleteTerms(taxonTerms, $("#taxon").val())
+          .then((autoCompleteArr) => {
+            if (autoCompleteArr instanceof Array && autoCompleteArr.length > 0) {
+              for (let i = 0; i < 5; i++) {
+                $("#autocomplete-results").children().eq(i).text(autoCompleteArr[i]);
+              }
+            }
+          })
+          .catch((err) => { console.error(err); });
+      });
+
       function onSearchTypeSelected(searchType) {
         const form = $("#quick-search");
         form.find("[name=search-type]").val(searchType);
@@ -165,8 +205,9 @@ flush();
 
       $("#search-type-cn").click(() => { onSearchTypeSelected("cn"); });
       $("#search-type-tx").click(() => { onSearchTypeSelected("tx"); });
-    </script>
-  </nav>
-</div> <!-- #navbar-container -->
+    };
+  </script>
+
+</nav>
 
 <div id="site-content">
