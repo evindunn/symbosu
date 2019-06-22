@@ -142,56 +142,29 @@ flush();
       </ul> <!-- Dropdowns -->
     </div> <!-- .navbar-collapse -->
 
-    <!-- Search/Login -->
+    <!-- Search -->
     <form class="form-inline" name="quick-search" id="quick-search">
       <div class="input-group">
         <input id="search-text" name="search-text" type="text" class="form-control">
-        <div class="input-group-append">
-          <button id="search-bin" class="btn drk-grn" type="submit">Search</button>
-          <button class="btn dropdown-toggle dropdown-toggle-split drk-grn" data-toggle="dropdown" type="button">
-            <span class="sr-only">Toggle Dropdown</span>
-          </button>
+        <div class="input-group-append m-0">
+          <button id="search-btn" class="btn dropdown-toggle drk-grn m-0" data-toggle="dropdown" type="button">Search</button>
           <div class="dropdown-menu" aria-labelledby="search-btn">
-            <a id="search-type-both" class="dropdown-item active" href="#">Common Name and Taxon Search</a>
             <a id="search-type-cn" class="dropdown-item" href="#">Common Name Search</a>
             <a id="search-type-tx" class="dropdown-item" href="#">Taxon Search</a>
           </div>
-          <input name="search-type" type="text" value="both" style="display: none;">
+          <input name="search-type" type="text" value="cn" style="display: none;">
         </div>
       </div>
     </form>
     <script>
       function onSearchTypeSelected(searchType) {
-        $("#quick-search").find("[name=search-type]").val(searchType);
+        const form = $("#quick-search");
+        form.find("[name=search-type]").val(searchType);
+        form.submit();
       }
 
-      const searchTypeCn = $("#search-type-cn");
-      const searchTypeTx = $("#search-type-tx");
-      const searchTypeBoth = $("#search-type-both");
-      const searchTypes = [searchTypeCn, searchTypeTx, searchTypeBoth];
-
-      searchTypes.forEach((element) =>{
-        element.click((event) => {
-          event.preventDefault();
-          searchTypes.forEach((other) => {
-            if (other != element) {
-              other.removeClass("active");
-            }
-          });
-          element.addClass("active");
-          switch (element.attr("id")) {
-            case "search-type-cn":
-              onSearchTypeSelected("cn");
-              break;
-            case "search-type-tx":
-              onSearchTypeSelected("tx");
-              break
-            default:
-              onSearchTypeSelected("both");
-              break
-          }
-        });
-      });
+      $("#search-type-cn").click(() => { onSearchTypeSelected("cn"); });
+      $("#search-type-tx").click(() => { onSearchTypeSelected("tx"); });
     </script>
   </nav>
 </div> <!-- #navbar-container -->
