@@ -152,13 +152,13 @@ flush();
     autocomplete="off"
     action="<?php echo $clientroot . '/taxa/index.php'?>">
     <div class="input-group">
-      <input id="taxon" name="taxon" type="text" class="form-control dropdown-toggle" data-toggle="dropdown">
-      <div id="autocomplete-results" class="dropdown-menu" aria-labelledby="taxon">
-        <a class="dropdown-item" onclick="document.getElementById('taxon').value = this.innerHTML;" href="#"></a>
-        <a class="dropdown-item" onclick="document.getElementById('taxon').value = this.innerHTML;" href="#"></a>
-        <a class="dropdown-item" onclick="document.getElementById('taxon').value = this.innerHTML;" href="#"></a>
-        <a class="dropdown-item" onclick="document.getElementById('taxon').value = this.innerHTML;" href="#"></a>
-        <a class="dropdown-item" onclick="document.getElementById('taxon').value = this.innerHTML;" href="#"></a>
+      <input id="search-term" name="taxon" type="text" class="form-control dropdown-toggle" data-toggle="dropdown">
+      <div id="autocomplete-results" class="dropdown-menu" aria-labelledby="search-term">
+        <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
+        <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
+        <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
+        <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
+        <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
       </div>
       <div class="input-group-append m-0">
         <button id="search-btn" class="btn dropdown-toggle drk-grn m-0" data-toggle="dropdown" type="button">Search</button>
@@ -171,12 +171,14 @@ flush();
   </form>
   <script>
     window.onload = () => {
-      const taxonTerms = "<?php echo $clientRoot . '/collections/rpc/taxalist.php?term=' ?>";
+      const autocompleteTerms = "<?php echo $clientRoot . '/collections/rpc/taxalist.php?term=' ?>";
+      const commonSearchId = 3;
+      const taxonSearchId = 5;
 
-      function getAutocompleteTerms(url, searchTerm) {
+      function getAutocompleteTerms(url, searchTerm, searchType) {
         return new Promise((resolve, reject) => {
           try {
-            $.getJSON(url + searchTerm, (data) => {
+            $.getJSON(url + searchTerm + "&t=" + searchType, (data) => {
               resolve(data);
             });
           } catch(err) {
@@ -185,22 +187,45 @@ flush();
         });
       }
 
-      $("#taxon").bind("keydown", (event) => {
-        getAutocompleteTerms(taxonTerms, $("#taxon").val())
-          .then((autoCompleteArr) => {
-            if (autoCompleteArr instanceof Array && autoCompleteArr.length > 0) {
-              for (let i = 0; i < 5; i++) {
-                $("#autocomplete-results").children().eq(i).text(autoCompleteArr[i]);
+      $("#search-term").bind("keydown", (event) => {
+        Promise.all([
+          getAutocompleteTerms(autocompleteTerms, $("#search-term").val(), taxonSearchId),
+          getAutocompleteTerms(autocompleteTerms, $("#search-term").val(), commonSearchId),
+        ])
+        .then(([taxonSuggestions, commonSuggestions]) => {
+          if (taxonSuggestions instanceof Array && taxonSuggestions.length > 0) {
+            for (let i = 0; i < 5; i++) {
+              // Fill the odd slots with common names, if any exist
+              if (i % 2 == 1 && commonSuggestions instanceof Array && commonSuggestions.length > i) {
+                $("#autocomplete-results").children().eq(i).text(commonSuggestions[i]);
+              } else {
+                $("#autocomplete-results").children().eq(i).text(taxonSuggestions[i]);
               }
             }
-          })
-          .catch((err) => { console.error(err); });
+          }
+        })
+        .catch((err) => { console.error(err); });
       });
 
       function onSearchTypeSelected(searchType) {
         const form = $("#quick-search");
-        form.find("[name=search-type]").val(searchType);
-        form.submit();
+        let action;
+        let searchTermName;
+        if (searchType === "cn") {
+          action = "<?php echo $clientRoot . '/taxa/common.php'; ?>";
+          searchTermName = "common";
+        } else if (searchType === "tx") {
+          action = "<?php echo $clientroot . '/taxa/index.php'; ?>";
+          searchTermName = "taxon";
+        }
+        form.attr("action", action);
+        $("#search-term").attr("name", searchTermName);
+
+        if ($("#search-term").val() === '') {
+          alert("Please enter a search term");
+        } else {
+          form.submit();
+        }
       }
 
       $("#search-type-cn").click(() => { onSearchTypeSelected("cn"); });
