@@ -148,7 +148,7 @@ flush();
     </li>
   </ul> <!-- Dropdowns -->
 
-  <div class="ml-auto m-4" id="login-search">
+  <div class="my-4 ml-auto mr-1 p-0" id="login-search">
     <!-- Search -->
     <form
       class="form-inline ml-auto mr-0"
@@ -176,7 +176,7 @@ flush();
     </form>
 
     <!-- Login -->
-    <nav class="navbar navbar-expand-sm" style="font-size: 0.8em; text-align: right;">
+    <nav class="navbar navbar-expand-sm mb-2 pt-0" style="font-size: 0.8em; text-align: right;">
       <?php
       if($userDisplayName) {
       ?>
