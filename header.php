@@ -1,21 +1,9 @@
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
-<?php
-// TODO: Remove, dev only
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
-flush();
-?>
 
 <!-- Compat stuff -->
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,400i,600,600i,700,700i" rel="stylesheet">
 <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' type='text/css' media='all' />
-<!-- <script src="<?php // echo $clientRoot; ?>/js/jquery-ui-1.12.1/external/jquery/jquery.js"></script> -->
-<!-- <script src="<?php // echo $clientRoot; ?>/js/jquery-ui-1.12.1/jquery-ui.js"></script> -->
-<!-- <script src="<?php // echo $clientRoot; ?>/js/superfish.min.js"></script> -->
-<!-- <script src="<?php // echo $clientRoot; ?>/js/menu.js"></script> -->
-<!-- <link href="<?php // echo $clientRoot; ?>/css/component.css" type="text/css" rel="stylesheet" /> -->
 
 <!-- Bootstrap Deps -->
 <script
@@ -40,8 +28,6 @@ flush();
   integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
   crossorigin="anonymous">
 </script>
-
-<script type="text/javascript" src="<?php echo $clientRoot . '/js/autocomplete.js'; ?>"></script>
 
 <style>
   #navbar-container {
@@ -86,12 +72,14 @@ flush();
   }
 </style>
 
+<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
+<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+
 <!-- Navbar -->
-<!-- <div id="navbar-container"> -->
-<nav class="navbar navbar-expand-lg sticky-top">
+<nav id="main-nav" class="navbar navbar-expand-lg sticky-top">
   <div id="navbar-background" class="shadow"></div>
   <a class="navbar-brand" href="<?php echo $clientRoot; ?>/index.php">
-    <img src="<?php echo $clientRoot; ?>/images/layout/new-logo.png" alt="Oregon Flora">
+    <img id="logo" src="<?php echo $clientRoot; ?>/images/layout/new-logo.png" alt="Oregon Flora">
   </a>
 
   <ul class="navbar-nav">
@@ -149,21 +137,24 @@ flush();
   </ul> <!-- Dropdowns -->
 
   <div class="my-4 ml-auto mr-1 p-0" id="login-search">
+
     <!-- Search -->
     <form
       class="form-inline ml-auto mr-0"
       name="quick-search"
       id="quick-search"
       autocomplete="off"
-      action="<?php echo $clientroot . '/taxa/index.php'?>">
+      action="<?php echo $clientRoot . '/taxa/index.php'?>">
       <div class="input-group">
-        <input id="search-term" name="taxon" type="text" class="form-control dropdown-toggle" data-toggle="dropdown">
-        <div id="autocomplete-results" class="dropdown-menu" aria-labelledby="search-term">
-          <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
-          <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
-          <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
-          <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
-          <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
+        <div class="dropdown">
+          <input id="search-term" name="taxon" type="text" class="form-control dropdown-toggle" data-toggle="dropdown">
+          <div id="autocomplete-results" class="dropdown-menu" aria-labelledby="search-term">
+            <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
+            <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
+            <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
+            <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
+            <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
+          </div>
         </div>
         <div class="input-group-append m-0">
           <button id="search-btn" class="btn dropdown-toggle drk-grn m-0" data-toggle="dropdown" type="button">Search</button>
@@ -176,18 +167,20 @@ flush();
     </form>
 
     <!-- Login -->
-    <nav class="navbar navbar-expand-sm mb-2 pt-0" style="font-size: 0.8em; text-align: right;">
+
       <?php
       if($userDisplayName) {
       ?>
-        <div class="nav-item wht-txt">Welcome <b><?php echo $userDisplayName; ?></b>!</div>
-        <div class="nav-link"><a class="wht-txt" href="<?php echo $clientRoot; ?>/profile/viewprofile.php">My Profile</a></div>
-        <div class="nav-link"><a class="wht-txt" href="<?php echo $clientRoot; ?>/profile/index.php?submit=logout">Logout</a></div>
+        <nav id="login-nav" class="navbar navbar-expand-sm mb-4 p-0" style="font-size: 0.8em; text-align: center;">
+          <div class="nav-item wht-txt">Welcome <b><?php echo $userDisplayName; ?></b>!</div>
+          <div class="nav-link"><a class="wht-txt" href="<?php echo $clientRoot; ?>/profile/viewprofile.php">My Profile</a></div>
+          <div class="nav-link"><a class="wht-txt" href="<?php echo $clientRoot; ?>/profile/index.php?submit=logout">Logout</a></div>
+        </nav>
       <?php
       }
       else{
       ?>
-        <div class="col">
+        <div class="container-fluid mb-4" style="font-size: 0.8em; text-align: right;">
           <a class="wht-txt" href="<?php echo $clientRoot."/profile/index.php?refurl=".$_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']; ?>">
             Log In
           </a>
@@ -195,7 +188,6 @@ flush();
       <?php
       }
       ?>
-    </nav>
 
   </div> <!-- #login-search -->
 
@@ -225,7 +217,7 @@ flush();
           action = "<?php echo $clientRoot . '/taxa/common.php'; ?>";
           searchTermName = "common";
         } else if (searchType === "tx") {
-          action = "<?php echo $clientroot . '/taxa/index.php'; ?>";
+          action = "<?php echo $clientRoot . '/taxa/index.php'; ?>";
           searchTermName = "taxon";
         }
         form.attr("action", action);
@@ -243,6 +235,18 @@ flush();
           $("#autocomplete-results").children().text("");
         }
       });
+
+      function collapseNavBar() {
+        // $("#logo").attr("src", "<?php echo $clientRoot; ?>/images/layout/new-logo-sm.png");
+        // $("#login-nav").hide();
+        // $("#login-search").removeClass("my-4").addClass("my-2");
+      }
+
+      function expandNavBar() {
+        // $("#logo").attr("src", "<?php echo $clientRoot; ?>/images/layout/new-logo.png");
+        // $("#login-nav").show();
+        // $("#login-search").removeClass("my-2").addClass("my-4");
+      }
 
       $("#search-term").bind("keydown", () => {
         if ($("#search-term").val() !== "") {
@@ -268,6 +272,14 @@ flush();
 
       $("#search-type-cn").click(() => { onSearchTypeSelected("cn"); });
       $("#search-type-tx").click(() => { onSearchTypeSelected("tx"); });
+
+      $(document).scroll((e) => {
+        if (e.pageY > 170) {
+          collapseNavBar();
+        } else {
+          expandNavBar();
+        }
+      });
     };
   </script>
 
