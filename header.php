@@ -67,7 +67,7 @@ flush();
     display: block;
   }
 
-  .nav-link.dropdown-toggle {
+  .wht-txt {
     text-transform: uppercase;
     color: white !important;
   }
@@ -97,7 +97,7 @@ flush();
   <ul class="navbar-nav">
     <!-- Explore our Site -->
     <li class="nav-item dropdown hover-dropdown">
-      <a class="nav-link dropdown-toggle" href="#" id="explore">
+      <a class="nav-link dropdown-toggle wht-txt" href="#" id="explore">
         Explore Our Site
       </a>
       <div class="dropdown-menu" aria-labelledby="explore">
@@ -113,7 +113,7 @@ flush();
 
     <!-- Resources -->
     <li class="nav-item dropdown hover-dropdown">
-      <a class="nav-link dropdown-toggle" href="#" id="resources">
+      <a class="nav-link dropdown-toggle wht-txt" href="#" id="resources">
         Resources
       </a>
       <div class="dropdown-menu" aria-labelledby="resources">
@@ -125,7 +125,7 @@ flush();
 
     <!-- About -->
     <li class="nav-item dropdown hover-dropdown">
-      <a class="nav-link dropdown-toggle" href="#" id="about">
+      <a class="nav-link dropdown-toggle wht-txt" href="#" id="about">
         About
       </a>
       <div class="dropdown-menu" aria-labelledby="about">
@@ -137,7 +137,7 @@ flush();
 
     <!-- Support -->
     <li class="nav-item dropdown hover-dropdown">
-      <a class="nav-link dropdown-toggle" href="#" id="support">
+      <a class="nav-link dropdown-toggle wht-txt" href="#" id="support">
         Support
       </a>
       <div class="dropdown-menu" aria-labelledby="support">
@@ -148,31 +148,57 @@ flush();
     </li>
   </ul> <!-- Dropdowns -->
 
-  <!-- Search -->
-  <form
-    class="form-inline ml-auto"
-    name="quick-search"
-    id="quick-search"
-    autocomplete="off"
-    action="<?php echo $clientroot . '/taxa/index.php'?>">
-    <div class="input-group">
-      <input id="search-term" name="taxon" type="text" class="form-control dropdown-toggle" data-toggle="dropdown">
-      <div id="autocomplete-results" class="dropdown-menu" aria-labelledby="search-term">
-        <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
-        <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
-        <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
-        <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
-        <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
-      </div>
-      <div class="input-group-append m-0">
-        <button id="search-btn" class="btn dropdown-toggle drk-grn m-0" data-toggle="dropdown" type="button">Search</button>
-        <div class="dropdown-menu" aria-labelledby="search-btn">
-          <a id="search-type-cn" class="dropdown-item" href="#">Common Name Search</a>
-          <a id="search-type-tx" class="dropdown-item" href="#">Taxon Search</a>
+  <div class="ml-auto m-4" id="login-search">
+    <!-- Search -->
+    <form
+      class="form-inline ml-auto mr-0"
+      name="quick-search"
+      id="quick-search"
+      autocomplete="off"
+      action="<?php echo $clientroot . '/taxa/index.php'?>">
+      <div class="input-group">
+        <input id="search-term" name="taxon" type="text" class="form-control dropdown-toggle" data-toggle="dropdown">
+        <div id="autocomplete-results" class="dropdown-menu" aria-labelledby="search-term">
+          <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
+          <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
+          <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
+          <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
+          <a class="dropdown-item" onclick="document.getElementById('search-term').value = this.innerHTML;" href="#"></a>
+        </div>
+        <div class="input-group-append m-0">
+          <button id="search-btn" class="btn dropdown-toggle drk-grn m-0" data-toggle="dropdown" type="button">Search</button>
+          <div class="dropdown-menu" aria-labelledby="search-btn">
+            <a id="search-type-cn" class="dropdown-item" href="#">Common Name Search</a>
+            <a id="search-type-tx" class="dropdown-item" href="#">Taxon Search</a>
+          </div>
         </div>
       </div>
-    </div>
-  </form>
+    </form>
+
+    <!-- Login -->
+    <nav class="navbar navbar-expand-sm" style="font-size: 0.8em; text-align: right;">
+      <?php
+      if($userDisplayName) {
+      ?>
+        <div class="nav-item wht-txt">Welcome <b><?php echo $userDisplayName; ?></b>!</div>
+        <div class="nav-link"><a class="wht-txt" href="<?php echo $clientRoot; ?>/profile/viewprofile.php">My Profile</a></div>
+        <div class="nav-link"><a class="wht-txt" href="<?php echo $clientRoot; ?>/profile/index.php?submit=logout">Logout</a></div>
+      <?php
+      }
+      else{
+      ?>
+        <div class="col">
+          <a class="wht-txt" href="<?php echo $clientRoot."/profile/index.php?refurl=".$_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']; ?>">
+            Log In
+          </a>
+        </div>
+      <?php
+      }
+      ?>
+    </nav>
+
+  </div> <!-- #login-search -->
+
   <script>
     window.onload = () => {
       const commonSearchId = 3;
@@ -212,24 +238,14 @@ flush();
         }
       }
 
-      function clearSuggestions() {
-        $("#autocomplete-results").children().text("");
-      }
-
-      $("#search-term").blur(() => {
-        clearSuggestions();
-      });
-
-      $("#search-term").bind("keyup", () => {
+      $("#search-term").bind("keyup", "blur", () => {
         if ($("#search-term").val() === "") {
-          clearSuggestions();
+          $("#autocomplete-results").children().text("");
         }
       });
 
       $("#search-term").bind("keydown", () => {
-        if ($("#search-term").val() === "") {
-          clearSuggestions();
-        } else {
+        if ($("#search-term").val() !== "") {
           Promise.all([
             getAutocompleteTerms(autocompleteTerms, $("#search-term").val(), taxonSearchId),
             getAutocompleteTerms(autocompleteTerms, $("#search-term").val(), commonSearchId),
