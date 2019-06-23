@@ -80,6 +80,10 @@ flush();
   .drk-grn {
     background-color: rgba(0, 100, 0, 0.5) !important;
   }
+
+  #autocomplete-results .dropdown-item {
+    text-transform: capitalize;
+  }
 </style>
 
 <!-- Navbar -->
@@ -171,9 +175,9 @@ flush();
   </form>
   <script>
     window.onload = () => {
-      const autocompleteTerms = "<?php echo $clientRoot . '/collections/rpc/taxalist.php?term=' ?>";
       const commonSearchId = 3;
       const taxonSearchId = 5;
+      const autocompleteTerms = "<?php echo $clientRoot . '/collections/rpc/taxalist.php?l=5&term=' ?>";
 
       function getAutocompleteTerms(url, searchTerm, searchType) {
         return new Promise((resolve, reject) => {
@@ -186,26 +190,6 @@ flush();
           }
         });
       }
-
-      $("#search-term").bind("keydown", (event) => {
-        Promise.all([
-          getAutocompleteTerms(autocompleteTerms, $("#search-term").val(), taxonSearchId),
-          getAutocompleteTerms(autocompleteTerms, $("#search-term").val(), commonSearchId),
-        ])
-        .then(([taxonSuggestions, commonSuggestions]) => {
-          if (taxonSuggestions instanceof Array && taxonSuggestions.length > 0) {
-            for (let i = 0; i < 5; i++) {
-              // Fill the odd slots with common names, if any exist
-              if (i % 2 == 1 && commonSuggestions instanceof Array && commonSuggestions.length > i) {
-                $("#autocomplete-results").children().eq(i).text(commonSuggestions[i]);
-              } else {
-                $("#autocomplete-results").children().eq(i).text(taxonSuggestions[i]);
-              }
-            }
-          }
-        })
-        .catch((err) => { console.error(err); });
-      });
 
       function onSearchTypeSelected(searchType) {
         const form = $("#quick-search");
@@ -227,6 +211,44 @@ flush();
           form.submit();
         }
       }
+
+      function clearSuggestions() {
+        $("#autocomplete-results").children().text("");
+      }
+
+      $("#search-term").blur(() => {
+        clearSuggestions();
+      });
+
+      $("#search-term").bind("keyup", () => {
+        if ($("#search-term").val() === "") {
+          clearSuggestions();
+        }
+      });
+
+      $("#search-term").bind("keydown", () => {
+        if ($("#search-term").val() === "") {
+          clearSuggestions();
+        } else {
+          Promise.all([
+            getAutocompleteTerms(autocompleteTerms, $("#search-term").val(), taxonSearchId),
+            getAutocompleteTerms(autocompleteTerms, $("#search-term").val(), commonSearchId),
+          ])
+          .then(([taxonSuggestions, commonSuggestions]) => {
+            if (taxonSuggestions instanceof Array) {
+              for (let i = 0; i < 5; i++) {
+                // Fill the odd slots with common names, if any exist
+                if (i % 2 == 1 && commonSuggestions instanceof Array && commonSuggestions.length > i) {
+                  $("#autocomplete-results").children().eq(i).text(commonSuggestions[i]);
+                } else {
+                  $("#autocomplete-results").children().eq(i).text(taxonSuggestions[i]);
+                }
+              }
+            }
+          })
+          .catch((err) => { console.error(err); });
+        }
+      });
 
       $("#search-type-cn").click(() => { onSearchTypeSelected("cn"); });
       $("#search-type-tx").click(() => { onSearchTypeSelected("tx"); });
