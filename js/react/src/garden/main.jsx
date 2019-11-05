@@ -5,10 +5,11 @@ import ReactDOM from "react-dom";
 
 import InfographicDropdown from "./infographicDropdown.jsx";
 import SideBar from "./sidebar.jsx";
-import { SearchResultContainer, SearchResult } from "./searchResults.jsx";
+import {SearchResult, SearchResultContainer} from "./searchResults.jsx";
 import CannedSearchContainer from "./cannedSearches.jsx";
 import ViewOpts from "./viewOpts.jsx";
 import httpGet from "../common/httpGet.js";
+import {addUrlQueryParam, getUrlQueryParams} from "../common/queryParams.js";
 
 const CLIENT_ROOT = "..";
 
@@ -33,36 +34,6 @@ const ATTRIBS_BEYOND_GARDEN = {
   "eco_region": 19,
   "habitat": 163
 };
-
-function getUrlQueryParams(url) {
-  let params = {};
-  if (url.includes("?")) {
-    let queryParams = url.split("?")[1].trim("&").split("&");
-    for (let i = 0; i < queryParams.length; i++) {
-      let [key, val] = queryParams[i].split("=");
-      params[key] = val;
-    }
-  }
-  return params;
-}
-
-function addUrlQueryParam(key, val) {
-  const params = getUrlQueryParams(window.location.search);
-  params[key] = val;
-
-  const paramKeys = Object.keys(params);
-  let queryParams = [];
-
-  for (let i = 0; i < paramKeys.length; i++) {
-    let k = paramKeys[i];
-    let v = params[k];
-    if (v.toString() !== '') {
-      queryParams.push(`${k}=${v}`);
-    }
-  }
-
-  return queryParams.length > 0 ? `?${queryParams.join("&")}` : "";
-}
 
 function getTaxaPage(tid) {
   return `${CLIENT_ROOT}/taxa/garden.php?taxon=${tid}`;

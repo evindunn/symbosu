@@ -56,32 +56,6 @@
     return $results;
   }
 
-/**
- * @param $dbPath string Path to the image in the Symbiota database
- * @return string The path based on $IMAGE_ROOT_URL and $IMAGE_DOMAIN
- */
-  function resolve_img_path($dbPath) {
-    global  $IMAGE_ROOT_URL;
-    global  $IMAGE_DOMAIN;
-
-    $result = $dbPath;
-
-    if (substr($dbPath, 0, 4) !== "http") {
-      if (isset($IMAGE_ROOT_URL)
-          && $IMAGE_ROOT_URL !== ""
-          && strpos($dbPath, $IMAGE_ROOT_URL !== 0)) {
-        $result = $IMAGE_ROOT_URL . $result;
-      }
-      if (isset($IMAGE_DOMAIN)
-          && $IMAGE_DOMAIN !== ""
-          && strpos($dbPath, $IMAGE_DOMAIN) !== 0) {
-        $result = $IMAGE_DOMAIN . $result;
-      }
-    }
-
-    return $result;
-  }
-
   /**
    * Returns the most prominent image for the given taxa ID
    * @param tid int The tid for the image
