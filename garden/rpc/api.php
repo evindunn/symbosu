@@ -63,15 +63,16 @@
   function resolve_img_path($dbPath) {
     global  $IMAGE_ROOT_URL;
     global  $IMAGE_DOMAIN;
+
     $result = $dbPath;
 
     if (substr($dbPath, 0, 4) !== "http") {
-      if (defined("IMAGE_ROOT_URL")
+      if (isset($IMAGE_ROOT_URL)
           && $IMAGE_ROOT_URL !== ""
           && strpos($dbPath, $IMAGE_ROOT_URL !== 0)) {
         $result = $IMAGE_ROOT_URL . $result;
       }
-      if (defined("IMAGE_DOMAIN")
+      if (isset($IMAGE_DOMAIN)
           && $IMAGE_DOMAIN !== ""
           && strpos($dbPath, $IMAGE_DOMAIN) !== 0) {
         $result = $IMAGE_DOMAIN . $result;
@@ -92,7 +93,7 @@
     $sql .= 'ORDER BY ' . ImageTbl::$SORT_SEQUENCE . ' LIMIT 1;';
     $res = run_query($sql);
 
-    if (count($res) > 0 && key_exists(ImgTbl::$THUMBNAIL_URL, $res[0])) {
+    if (count($res) > 0 && key_exists(ImageTbl::$THUMBNAIL_URL, $res[0])) {
       $result = $res[0][ImageTbl::$THUMBNAIL_URL];
       return resolve_img_path($result);
     }
@@ -161,7 +162,7 @@
     $all_attr_sql .= 'INNER JOIN kmcs on ';
     $all_attr_sql .= '(kmdescr.' . KmDescrTbl::$CID . ' = kmcs.' . KmcsTbl::$CID . ' ';
     $all_attr_sql .= 'AND kmdescr.' . KmDescrTbl::$CS . ' = kmcs.' . KmcsTbl::$CS . ') ';
-    $all_attr_sql .= 'WHERE ' . KmDescrTbl::$CID . " = $tid";
+    $all_attr_sql .= 'WHERE kmdescr.' . KmDescrTbl::$TID . " = $tid";
 
     $attr_res = run_query($all_attr_sql);
     $attr_array = [
@@ -303,7 +304,7 @@
     $sql .= 't ';
 
     $sql .= 'LEFT JOIN taxavernaculars v ON t.' . TaxaTbl::$TID . ' = v.' . TaxaVernacularTbl::$TID . ' ';
-    $sql .= 'RIGHT JOIN fmchklsttaxalink chk ON t.' . TaxaTbl::$TID . ' = chk.' . FmChecklistTaxaLinkTbl::$TID;
+    $sql .= 'RIGHT JOIN fmchklsttaxalink chk ON t.' . TaxaTbl::$TID . ' = chk.' . FmChecklistTaxaLinkTbl::$TID . ' ';
     $sql .= 'WHERE chk.' . FmChecklistTaxaLinkTbl::$CLID . " = $CLID_GARDEN_ALL ";
 
     if ($search === null) {
