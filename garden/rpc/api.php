@@ -156,14 +156,14 @@
     $all_attr_sql = get_select_statement(
         "kmdescr",
         [
-            'kmdescr.' . $TABLE_FIELDS['KMDESCR']['CID'] . ' as attr_key',
-            'lower(kmcs.' . $TABLE_FIELDS['KMCS']['CHAR_STATE_NAME'] . ') as attr_val'
+            'kmdescr.' . KmDescrTbl::$CID . ' as attr_key',
+            'lower(kmcs.' . KmcsTbl::$CHAR_STATE_NAME . ') as attr_val'
         ]
     );
     $all_attr_sql .= 'INNER JOIN kmcs on ';
-    $all_attr_sql .= '(kmdescr.' . $TABLE_FIELDS['KMDESCR']['CID'] . ' = kmcs.' . $TABLE_FIELDS['KMCS']['CID'] . ' ';
-    $all_attr_sql .= 'AND kmdescr.' . $TABLE_FIELDS['KMDESCR']['CS'] . ' = kmcs.' . $TABLE_FIELDS['KMCS']['CS'] . ') ';
-    $all_attr_sql .= 'WHERE ' . $TABLE_FIELDS['KMDESCR']['TID'] . " = $tid";
+    $all_attr_sql .= '(kmdescr.' . KmDescrTbl::$CID . ' = kmcs.' . KmcsTbl::$CID . ' ';
+    $all_attr_sql .= 'AND kmdescr.' . KmDescrTbl::$CS . ' = kmcs.' . KmcsTbl::$CS . ') ';
+    $all_attr_sql .= 'WHERE ' . KmDescrTbl::$CID . " = $tid";
 
     $attr_res = run_query($all_attr_sql);
     $attr_array = [
@@ -266,18 +266,18 @@
    * Returns canned searches for the react page
    */
   function get_canned_searches() {
-    global $TABLE_FIELDS, $CLID_GARDEN_ALL;
+    global $CLID_GARDEN_ALL;
 
     $sql = get_select_statement(
         "fmchecklists",
         [
-          $TABLE_FIELDS['CHECKLISTS']['CLID'],
-          $TABLE_FIELDS['CHECKLISTS']['NAME'],
-          $TABLE_FIELDS['CHECKLISTS']['ICON_URL'],
-          $TABLE_FIELDS['CHECKLISTS']['TITLE'] . ' as description',
+          FmChecklistTbl::$CLID,
+          FmChecklistTbl::$NAME,
+          FmChecklistTbl::$ICON_URL,
+          FmChecklistTbl::$TITLE . ' as description',
         ]
     );
-    $sql .= 'WHERE ' . $TABLE_FIELDS['CHECKLISTS']['PARENT_CLID'] . ' = ' . $CLID_GARDEN_ALL;
+    $sql .= 'WHERE ' . FmChecklistTbl::$PARENT_CLID . ' = ' . $CLID_GARDEN_ALL;
     return run_query($sql);
   }
 
@@ -297,28 +297,28 @@
     $sql = get_select_statement(
         "taxa",
         [
-            't.' . $TABLE_FIELDS['TAXA']['TID'],
-            't.' . $TABLE_FIELDS['TAXA']['SCINAME']
+            't.' . TaxaTbl::$TID,
+            't.' . TaxaTbl::$SCINAME
         ]
     );
     // Abbreviation for 'taxa' table name
     $sql .= 't ';
 
-    $sql .= 'LEFT JOIN taxavernaculars v ON t.tid = v.tid ';
-    $sql .= 'RIGHT JOIN fmchklsttaxalink chk ON t.tid = chk.tid ';
-    $sql .= "WHERE chk.clid = $CLID_GARDEN_ALL ";
+    $sql .= 'LEFT JOIN taxavernaculars v ON t.' . TaxaTbl::$TID . ' = v.' . TaxaVernacularTbl::$TID . ' ';
+    $sql .= 'RIGHT JOIN fmchklsttaxalink chk ON t.' . TaxaTbl::$TID . ' = chk.' . FmChecklistTaxaLinkTbl::$TID;
+    $sql .= 'WHERE chk.' . FmChecklistTaxaLinkTbl::$CLID . " = $CLID_GARDEN_ALL ";
 
     if ($search === null) {
-      $sql .= 'AND (t.' . $TABLE_FIELDS['TAXA']['SCINAME']. ' IS NOT NULL ';
-      $sql .= 'OR v.' . $TABLE_FIELDS['TAXA_VERNACULARS']['VERNACULAR_NAME'] . ' IS NOT NULL) ';
+      $sql .= 'AND (t.' . TaxaTbl::$SCINAME . ' IS NOT NULL ';
+      $sql .= 'OR v.' . TaxaVernacularTbl::$VERNACULAR_NAME . ' IS NOT NULL) ';
     }
     else {
-      $sql .= 'AND (lower(t.' . $TABLE_FIELDS['TAXA']['SCINAME'] . ") LIKE \"$search%\" ";
-      $sql .= 'OR lower(v. ' . $TABLE_FIELDS['TAXA_VERNACULARS']['VERNACULAR_NAME'] . ") LIKE \"$search%\") ";
+      $sql .= 'AND (lower(t.' . TaxaTbl::$SCINAME . ") LIKE \"$search%\" ";
+      $sql .= 'OR lower(v. ' . TaxaVernacularTbl::$VERNACULAR_NAME . ") LIKE \"$search%\") ";
     }
 
-    $sql .= 'GROUP BY t.' . $TABLE_FIELDS['TAXA']['TID'] . ' ';
-    $sql .= 'ORDER BY v.' . $TABLE_FIELDS['TAXA_VERNACULARS']['VERNACULAR_NAME'];
+    $sql .= 'GROUP BY t.' . TaxaTbl::$TID . ' ';
+    $sql .= 'ORDER BY v.' . TaxaVernacularTbl::$VERNACULAR_NAME;
 
     $resultsTmp = run_query($sql);
     $results = [];
@@ -331,7 +331,7 @@
       $result["checklists"] = [];
       $clidsTemp = get_checklists($result["tid"]);
       foreach ($clidsTemp as $clid) {
-        array_push($result["checklists"], $clid[$TABLE_FIELDS['CHECKLISTS']['CLID']]);
+        array_push($result["checklists"], $clid[FmChecklistTbl::$CLID]);
       }
 
       $result["vernacular"] = [];
@@ -340,10 +340,10 @@
       foreach ($vernacularsTmp as $vn) {
         $basename_is_set = array_key_exists("basename", $result["vernacular"]);
 
-        if (!$basename_is_set && strtolower($vn[$TABLE_FIELDS['TAXA_VERNACULARS']['LANGUAGE']]) === 'basename') {
-          $result["vernacular"]["basename"] = $vn[$TABLE_FIELDS['TAXA_VERNACULARS']['VERNACULAR_NAME']];
+        if (!$basename_is_set && strtolower($vn[TaxaVernacularTbl::$LANGUAGE) === 'basename') {
+          $result["vernacular"]["basename"] = $vn[TaxaVernacularTbl::$VERNACULAR_NAME];
         } else {
-          array_push($result["vernacular"]["names"], $vn[$TABLE_FIELDS['TAXA_VERNACULARS']['VERNACULAR_NAME']]);
+          array_push($result["vernacular"]["names"], $vn[TaxaVernacularTbl::$VERNACULAR_NAME);
         }
       }
       $result['vernacular']['names'] = array_unique($result["vernacular"]["names"]);
