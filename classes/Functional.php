@@ -1,7 +1,4 @@
 <?php
-include_once('../config/symbini.php');
-
-global $SERVER_ROOT;
 include_once($SERVER_ROOT . "/config/dbconnection.php");
 
 /**

@@ -1,16 +1,16 @@
 <?php
-  ob_start();
   include_once("../../config/symbini.php");
 
   global $SERVER_ROOT, $CHARSET;
-  include_once($SERVER_ROOT . "/classes/Functional.php");
 
+  include_once($SERVER_ROOT . "/classes/Functional.php");
+  include_once($SERVER_ROOT . "/meta/tables/fmchecklists.php");
+  include_once($SERVER_ROOT . "/meta/tables/fmchklsttaxalink.php");
   include_once($SERVER_ROOT . "/meta/tables/images.php");
   include_once($SERVER_ROOT . "/meta/tables/kmcs.php");
   include_once($SERVER_ROOT . "/meta/tables/kmdescr.php");
-  include_once($SERVER_ROOT . "/meta/tables/fmchecklists.php");
+  include_once($SERVER_ROOT . "/meta/tables/taxa.php");
   include_once($SERVER_ROOT . "/meta/tables/taxavernaculars.php");
-  include_once($SERVER_ROOT . "/meta/tables/fmchecklsttaxalink.php");
 
   $CLID_GARDEN_ALL = 54;
 
@@ -124,7 +124,6 @@
    * @return array Array of garden checklists that the TID is a member of
    */
   function get_checklists($tid) {
-    global $TABLE_FIELDS;
     global $CLID_GARDEN_ALL;
 
     $cl_sql = get_select_statement(
@@ -146,7 +145,6 @@
   }
 
   function get_attribs($tid) {
-    global $TABLE_FIELDS;
     global $CID_WIDTH, $CID_HEIGHT;
     global $CID_MOISTURE, $CID_SUNLIGHT;
     global $CID_FLOWER_COLOR, $CID_BLOOM_MONTHS, $CID_WILDLIFE_SUPPORT, $CID_LIFESPAN, $CID_FOLIAGE_TYPE, $CID_PLANT_TYPE;
@@ -286,7 +284,7 @@
    * @params $_GET
    */
   function get_garden_taxa($params) {
-    global $TABLE_FIELDS, $CLID_GARDEN_ALL;
+    global $CLID_GARDEN_ALL;
 
     $search = null;
     if (key_exists("search", $params) && $params["search"] !== "" && $params["search"] !== null) {
@@ -340,10 +338,10 @@
       foreach ($vernacularsTmp as $vn) {
         $basename_is_set = array_key_exists("basename", $result["vernacular"]);
 
-        if (!$basename_is_set && strtolower($vn[TaxaVernacularTbl::$LANGUAGE) === 'basename') {
+        if (!$basename_is_set && strtolower($vn[TaxaVernacularTbl::$LANGUAGE]) === 'basename') {
           $result["vernacular"]["basename"] = $vn[TaxaVernacularTbl::$VERNACULAR_NAME];
         } else {
-          array_push($result["vernacular"]["names"], $vn[TaxaVernacularTbl::$VERNACULAR_NAME);
+          array_push($result["vernacular"]["names"], $vn[TaxaVernacularTbl::$VERNACULAR_NAME]);
         }
       }
       $result['vernacular']['names'] = array_unique($result["vernacular"]["names"]);
@@ -364,10 +362,7 @@
   }
 
   // Begin View
-  error_reporting(E_ALL);
-  ini_set("display_errors", true);
   header("Content-Type: application/json; charset=UTF-8");
   echo json_encode($searchResults, JSON_NUMERIC_CHECK);
-  ob_end_flush();
 ?>
 
