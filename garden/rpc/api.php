@@ -44,7 +44,7 @@
    */
   function get_all_attrib_vals($cid) {
     $sql = 'SELECT DISTINCT ' . KmcsTbl::$CHAR_STATE_NAME . ' FROM kmcs ';
-    $sql .= 'WHERE ' . KmcsTbl::CID . " = $cid";
+    $sql .= 'WHERE ' . KmcsTbl::$CID . " = $cid";
 
     $results = [];
     $res_tmp = run_query($sql);

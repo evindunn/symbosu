@@ -46,6 +46,7 @@ const reactConfig = {
 
 const lessConfig = {
   entry: {
+    theme: path.join(SRC_DIR, "less", "theme.less"),
     header: path.join(SRC_DIR, "less", "header.less"),
     footer: path.join(SRC_DIR, "less", "footer.less"),
     garden: path.join(SRC_DIR, "less", "garden.less"),
