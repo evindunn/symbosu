@@ -5,7 +5,12 @@
   global $SERVER_ROOT, $CHARSET;
   include_once($SERVER_ROOT . "/classes/Functional.php");
 
-  $TABLE_FIELDS = json_decode(file_get_contents($SERVER_ROOT . "/meta/tableFields.json"), true);
+  include_once($SERVER_ROOT . "/meta/tables/images.php");
+  include_once($SERVER_ROOT . "/meta/tables/kmcs.php");
+  include_once($SERVER_ROOT . "/meta/tables/kmdescr.php");
+  include_once($SERVER_ROOT . "/meta/tables/fmchecklists.php");
+  include_once($SERVER_ROOT . "/meta/tables/taxavernaculars.php");
+  include_once($SERVER_ROOT . "/meta/tables/fmchecklsttaxalink.php");
 
   $CLID_GARDEN_ALL = 54;
 
@@ -38,14 +43,13 @@
    * @return string[] Array of all distinct values for the cid
    */
   function get_all_attrib_vals($cid) {
-    global $TABLE_FIELDS;
-    $sql = 'SELECT DISTINCT ' . $TABLE_FIELDS['KMCS']['CHAR_STATE_NAME'] . ' FROM kmcs ';
-    $sql .= 'WHERE ' . $TABLE_FIELDS['KMCS']['CID'] . " = $cid";
+    $sql = 'SELECT DISTINCT ' . KmcsTbl::$CHAR_STATE_NAME . ' FROM kmcs ';
+    $sql .= 'WHERE ' . KmcsTbl::CID . " = $cid";
 
     $results = [];
     $res_tmp = run_query($sql);
     foreach ($res_tmp as $r) {
-      array_push($results, $r[$TABLE_FIELDS['KMCS']['CHAR_STATE_NAME']]);
+      array_push($results, $r[KmcsTbl::$CHAR_STATE_NAME]);
     }
 
     sort($results);
@@ -57,20 +61,20 @@
  * @return string The path based on $IMAGE_ROOT_URL and $IMAGE_DOMAIN
  */
   function resolve_img_path($dbPath) {
+    global  $IMAGE_ROOT_URL;
+    global  $IMAGE_DOMAIN;
     $result = $dbPath;
 
     if (substr($dbPath, 0, 4) !== "http") {
-      if (key_exists("IMAGE_ROOT_URL", $GLOBALS)
-          && $GLOBALS["IMAGE_ROOT_URL"] !== ""
-          && strpos($dbPath, $GLOBALS["IMAGE_ROOT_URL"]) !== 0) {
-
-        $result = $GLOBALS["IMAGE_ROOT_URL"] . $result;
+      if (defined("IMAGE_ROOT_URL")
+          && $IMAGE_ROOT_URL !== ""
+          && strpos($dbPath, $IMAGE_ROOT_URL !== 0)) {
+        $result = $IMAGE_ROOT_URL . $result;
       }
-      if (key_exists("IMAGE_DOMAIN", $GLOBALS)
-          && $GLOBALS["IMAGE_DOMAIN"] !== ""
-          && strpos($dbPath, $GLOBALS["IMAGE_DOMAIN"]) !== 0) {
-
-        $result = $GLOBALS["IMAGE_DOMAIN"] . $result;
+      if (defined("IMAGE_DOMAIN")
+          && $IMAGE_DOMAIN !== ""
+          && strpos($dbPath, $IMAGE_DOMAIN) !== 0) {
+        $result = $IMAGE_DOMAIN . $result;
       }
     }
 
@@ -83,15 +87,13 @@
    * @return string The first thumbnail for $tid, else "" if one does not exist
    */
   function get_thumbnail($tid) {
-    global $TABLE_FIELDS;
-
-    $sql = get_select_statement("images", [ $TABLE_FIELDS["IMAGES"]["THUMBNAIL_URL"] ]);
-    $sql .= 'WHERE ' . $TABLE_FIELDS["IMAGES"]["TID"] . " = $tid ";
-    $sql .= 'ORDER BY ' . $TABLE_FIELDS["IMAGES"]["SORT_SEQUENCE"] . ' LIMIT 1;';
+    $sql = get_select_statement("images", [ ImageTbl::$THUMBNAIL_URL ]);
+    $sql .= 'WHERE ' . ImageTbl::$TID . " = $tid ";
+    $sql .= 'ORDER BY ' . ImageTbl::$SORT_SEQUENCE . ' LIMIT 1;';
     $res = run_query($sql);
 
-    if (count($res) > 0 && key_exists($TABLE_FIELDS["IMAGES"]["THUMBNAIL_URL"], $res[0])) {
-      $result = $res[0][$TABLE_FIELDS["IMAGES"]["THUMBNAIL_URL"]];
+    if (count($res) > 0 && key_exists(ImgTbl::$THUMBNAIL_URL, $res[0])) {
+      $result = $res[0][ImageTbl::$THUMBNAIL_URL];
       return resolve_img_path($result);
     }
 
@@ -103,17 +105,16 @@
    * @return array Array of vernacular names for the TID
    */
   function get_vernacular_names($tid) {
-    global $TABLE_FIELDS;
 
     $vn_sql = get_select_statement(
         "taxavernaculars",
         [
-            $TABLE_FIELDS['TAXA_VERNACULARS']['VERNACULAR_NAME'],
-            $TABLE_FIELDS['TAXA_VERNACULARS']['LANGUAGE'],
+            TaxaVernacularTbl::$VERNACULAR_NAME,
+            TaxaVernacularTbl::$LANGUAGE,
         ]
     );
-    $vn_sql .= ' WHERE ' . $TABLE_FIELDS['TAXA']['TID'] . " = $tid ";
-    $vn_sql .= ' ORDER BY ' . $TABLE_FIELDS['TAXA_VERNACULARS']['SORT_SEQ'] . ';';
+    $vn_sql .= ' WHERE ' . TaxaTbl::$TID . " = $tid ";
+    $vn_sql .= ' ORDER BY ' . TaxaVernacularTbl::$SORT_SEQ . ';';
 
     return run_query($vn_sql);
   }
@@ -129,17 +130,17 @@
     $cl_sql = get_select_statement(
         "fmchklsttaxalink tl",
         [
-            'tl.' . $TABLE_FIELDS["CHECKLISTS"]["CLID"]
+            'tl.' . FmChecklistTaxaLinkTbl::$CLID
         ]
     );
 
     $cl_sql .= 'INNER JOIN taxa t ON ';
-    $cl_sql .= 'tl.' . $TABLE_FIELDS["TAXA"]["TID"] . ' = t.' . $TABLE_FIELDS["TAXA"]["TID"] . ' ';
+    $cl_sql .= 'tl.' . FmChecklistTaxaLinkTbl::$TID . ' = t.' . TaxaTbl::$TID . ' ';
     $cl_sql .= 'INNER JOIN fmchecklists cl ON ';
-    $cl_sql .= 'tl.' . $TABLE_FIELDS["CHECKLISTS"]["CLID"] . ' = cl.' . $TABLE_FIELDS["CHECKLISTS"]["CLID"] . ' ';
-    $cl_sql .= 'WHERE t.' . $TABLE_FIELDS["TAXA"]["TID"] . " = $tid AND ";
-    $cl_sql .= 'cl.' . $TABLE_FIELDS["CHECKLISTS"]["PARENT_CLID"] . " = $CLID_GARDEN_ALL ";
-    $cl_sql .= 'GROUP BY ' . $TABLE_FIELDS["CHECKLISTS"]["CLID"];
+    $cl_sql .= 'tl.' . FmChecklistTaxaLinkTbl::$CLID . ' = cl.' . FmChecklistTbl::$CLID . ' ';
+    $cl_sql .= 'WHERE t.' . TaxaTbl::$TID . " = $tid AND ";
+    $cl_sql .= 'cl.' . FmChecklistTbl::$PARENT_CLID . " = $CLID_GARDEN_ALL ";
+    $cl_sql .= 'GROUP BY ' . FmChecklistTbl::$CLID;
 
     return run_query($cl_sql);
   }
