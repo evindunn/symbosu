@@ -17,7 +17,6 @@ class TaxaApp extends React.Component {
     httpGet(`./rpc/api.php?taxon=${this.props.tid}`)
       .then((res) => {
         res = JSON.parse(res);
-        console.log(res.image);
         this.setState({
           sciName: res.sciName,
           commonName: res.vernacularName,
@@ -45,4 +44,7 @@ TaxaApp.defaultProps = {
 };
 
 const domContainer = document.getElementById("react-taxa-app");
-ReactDOM.render(<TaxaApp tid={ getUrlQueryParams(window.location.search).taxon || '' } />, domContainer);
+ReactDOM.render(
+  <TaxaApp tid={ getUrlQueryParams(window.location.search).taxon || TaxaApp.defaultProps.tid } />,
+  domContainer
+);
