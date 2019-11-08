@@ -7,6 +7,12 @@ require_once "./config/SymbosuEntityManager.php";
 
 $entityManager = SymbosuEntityManager::getEntityManager();
 
+$entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('set', 'string');
+$entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+$entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('bit', 'integer');
+$entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('point', 'array');
+$entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('polygon', 'array');
+
 // fetch metadata
 $driver = new DatabaseDriver(
   $entityManager->getConnection()->getSchemaManager()
@@ -34,12 +40,6 @@ $specificTables = [
 
 $driver->setTables($specificTables, []);
 $entityManager->getConfiguration()->setMetadataDriverImpl($driver);
-
-$entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('set', 'string');
-$entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
-$entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('bit', 'integer');
-$entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('point', 'array');
-$entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('polygon', 'array');
 
 $cmf = new DisconnectedClassMetadataFactory($entityManager);
 $cmf->setEntityManager($entityManager);

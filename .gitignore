@@ -10,3 +10,5 @@
 .settings/org.eclipse.php.core.prefs
 .idea/
 vendor/
+models/
+!**/.gitkeep
