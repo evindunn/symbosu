@@ -7,22 +7,22 @@ include_once(__DIR__ . "/symbini.php");
 include_once("$SERVER_ROOT/config/dbconnection.php");
 require_once("$SERVER_ROOT/vendor/autoload.php");
 
-//include_once ("$SERVER_ROOT/models/Adminlanguages.php");
-//include_once ("$SERVER_ROOT/models/Agents.php");
-//include_once ("$SERVER_ROOT/models/Fmchecklists.php");
-//include_once ("$SERVER_ROOT/models/Fmchklsttaxalink.php");
-//include_once ("$SERVER_ROOT/models/Images.php");
-//include_once ("$SERVER_ROOT/models/Institutions.php");
-//include_once ("$SERVER_ROOT/models/Kmcharacters.php");
-//include_once ("$SERVER_ROOT/models/Kmcharheading.php");
-//include_once ("$SERVER_ROOT/models/Kmcs.php");
-//include_once ("$SERVER_ROOT/models/Omcollections.php");
-//include_once ("$SERVER_ROOT/models/Omoccurrences.php");
-//include_once ("$SERVER_ROOT/models/Taxa.php");
-//include_once ("$SERVER_ROOT/models/Taxaenumtree.php");
-//include_once ("$SERVER_ROOT/models/Taxauthority.php");
-//include_once ("$SERVER_ROOT/models/Taxavernaculars.php");
-//include_once ("$SERVER_ROOT/models/Users.php");
+include_once ("$SERVER_ROOT/models/Adminlanguages.php");
+include_once ("$SERVER_ROOT/models/Agents.php");
+include_once ("$SERVER_ROOT/models/Fmchecklists.php");
+include_once ("$SERVER_ROOT/models/Fmchklsttaxalink.php");
+include_once ("$SERVER_ROOT/models/Images.php");
+include_once ("$SERVER_ROOT/models/Institutions.php");
+include_once ("$SERVER_ROOT/models/Kmcharacters.php");
+include_once ("$SERVER_ROOT/models/Kmcharheading.php");
+include_once ("$SERVER_ROOT/models/Kmcs.php");
+include_once ("$SERVER_ROOT/models/Omcollections.php");
+include_once ("$SERVER_ROOT/models/Omoccurrences.php");
+include_once ("$SERVER_ROOT/models/Taxa.php");
+include_once ("$SERVER_ROOT/models/Taxaenumtree.php");
+include_once ("$SERVER_ROOT/models/Taxauthority.php");
+include_once ("$SERVER_ROOT/models/Taxavernaculars.php");
+include_once ("$SERVER_ROOT/models/Users.php");
 
 
 class SymbosuEntityManager {
