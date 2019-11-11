@@ -4,6 +4,7 @@
   global $SERVER_ROOT, $CHARSET;
 
   include_once($SERVER_ROOT . "/classes/Functional.php");
+  include_once($SERVER_ROOT . "/config/SymbosuEntityManager.php");
   include_once($SERVER_ROOT . "/meta/tables/fmchecklists.php");
   include_once($SERVER_ROOT . "/meta/tables/fmchklsttaxalink.php");
   include_once($SERVER_ROOT . "/meta/tables/images.php");
@@ -56,11 +57,12 @@
     return $results;
   }
 
-  /**
-   * Returns the most prominent image for the given taxa ID
-   * @param tid int The tid for the image
-   * @return string The first thumbnail for $tid, else "" if one does not exist
-   */
+/**
+ * Returns the most prominent image for the given taxa ID
+ * @param tid int The tid for the image
+ * @return string The first thumbnail for $tid, else "" if one does not exist
+ * @throws \Doctrine\ORM\ORMException
+ */
   function get_thumbnail($tid) {
     $sql = get_select_statement("images", [ ImageTbl::$THUMBNAIL_URL ]);
     $sql .= 'WHERE ' . ImageTbl::$TID . " = $tid ";
@@ -266,63 +268,95 @@
       $search = strtolower(preg_replace("/[;()-]/", '', $params["search"]));
     }
 
-    # Select all garden taxa that have some sort of name
-    $sql = get_select_statement(
-        "taxa",
-        [
-            't.' . TaxaTbl::$TID,
-            't.' . TaxaTbl::$SCINAME
-        ]
-    );
-    // Abbreviation for 'taxa' table name
-    $sql .= 't ';
+    $em = SymbosuEntityManager::getEntityManager();
+//    $taxaRepo = $em->getRepository("Taxa");
+    $checklistRepo = $em->getRepository("Fmchecklists");
 
-    $sql .= 'LEFT JOIN taxavernaculars v ON t.' . TaxaTbl::$TID . ' = v.' . TaxaVernacularTbl::$TID . ' ';
-    $sql .= 'RIGHT JOIN fmchklsttaxalink chk ON t.' . TaxaTbl::$TID . ' = chk.' . FmChecklistTaxaLinkTbl::$TID . ' ';
-    $sql .= 'WHERE chk.' . FmChecklistTaxaLinkTbl::$CLID . " = $CLID_GARDEN_ALL ";
+    $gCl = $checklistRepo->find($CLID_GARDEN_ALL);
+    $results = [
+      "clid" => $gCl->getClid(),
+      "taxa" => $gCl->getTaxa()
+    ];
 
-    if ($search === null) {
-      $sql .= 'AND (t.' . TaxaTbl::$SCINAME . ' IS NOT NULL ';
-      $sql .= 'OR v.' . TaxaVernacularTbl::$VERNACULAR_NAME . ' IS NOT NULL) ';
+//    $cLinks = $checklistLinkRepo->findBy([ "clid" => $CLID_GARDEN_ALL ]);
+//    $result = $taxaRepo->find(2379);
+//    $results = [
+//      [
+//        "tid" => $result->getTid(),
+//        "sciname" => $result->getSciname(),
+//        "basename" => $result->getBaseName(),
+//        "vernacularnames" => $result->getVernacularNames(),
+//        "checkListIds" => $result->getChecklistIds(),
+//        "thumbnail" => $result->getThumbnail()
+//      ]
+//    ];
+
+//    $taxaRepo->clear();
+    $checklistRepo->clear();
+//    $checklistLinkRepo->clear();
+
+    if ($search !== null) {
+
     }
-    else {
-      $sql .= 'AND (lower(t.' . TaxaTbl::$SCINAME . ") LIKE \"$search%\" ";
-      $sql .= 'OR lower(v. ' . TaxaVernacularTbl::$VERNACULAR_NAME . ") LIKE \"$search%\") ";
-    }
 
-    $sql .= 'GROUP BY t.' . TaxaTbl::$TID . ' ';
-    $sql .= 'ORDER BY v.' . TaxaVernacularTbl::$VERNACULAR_NAME;
 
-    $resultsTmp = run_query($sql);
-    $results = [];
+//    # Select all garden taxa that have some sort of name
+//    $sql = get_select_statement(
+//        "taxa",
+//        [
+//            't.' . TaxaTbl::$TID,
+//            't.' . TaxaTbl::$SCINAME
+//        ]
+//    );
+//    // Abbreviation for 'taxa' table name
+//    $sql .= 't ';
+//
+//    $sql .= 'LEFT JOIN taxavernaculars v ON t.' . TaxaTbl::$TID . ' = v.' . TaxaVernacularTbl::$TID . ' ';
+//    $sql .= 'RIGHT JOIN fmchklsttaxalink chk ON t.' . TaxaTbl::$TID . ' = chk.' . FmChecklistTaxaLinkTbl::$TID . ' ';
+//    $sql .= 'WHERE chk.' . FmChecklistTaxaLinkTbl::$CLID . " = $CLID_GARDEN_ALL ";
+//
+//    if ($search === null) {
+//      $sql .= 'AND (t.' . TaxaTbl::$SCINAME . ' IS NOT NULL ';
+//      $sql .= 'OR v.' . TaxaVernacularTbl::$VERNACULAR_NAME . ' IS NOT NULL) ';
+//    }
+//    else {
+//      $sql .= 'AND (lower(t.' . TaxaTbl::$SCINAME . ") LIKE \"$search%\" ";
+//      $sql .= 'OR lower(v. ' . TaxaVernacularTbl::$VERNACULAR_NAME . ") LIKE \"$search%\") ";
+//    }
+//
+//    $sql .= 'GROUP BY t.' . TaxaTbl::$TID . ' ';
+//    $sql .= 'ORDER BY v.' . TaxaVernacularTbl::$VERNACULAR_NAME;
+//
+//    $resultsTmp = run_query($sql);
+//    $results = [];
 
-    // Populate image urls
-    foreach ($resultsTmp as $result) {
-      $result = array_merge($result, get_attribs($result["tid"]));
-      $result["image"] = get_thumbnail($result["tid"]);
-
-      $result["checklists"] = [];
-      $clidsTemp = get_checklists($result["tid"]);
-      foreach ($clidsTemp as $clid) {
-        array_push($result["checklists"], $clid[FmChecklistTbl::$CLID]);
-      }
-
-      $result["vernacular"] = [];
-      $result["vernacular"]["names"] = [];
-      $vernacularsTmp = get_vernacular_names($result["tid"]);
-      foreach ($vernacularsTmp as $vn) {
-        $basename_is_set = array_key_exists("basename", $result["vernacular"]);
-
-        if (!$basename_is_set && strtolower($vn[TaxaVernacularTbl::$LANGUAGE]) === 'basename') {
-          $result["vernacular"]["basename"] = $vn[TaxaVernacularTbl::$VERNACULAR_NAME];
-        } else {
-          array_push($result["vernacular"]["names"], $vn[TaxaVernacularTbl::$VERNACULAR_NAME]);
-        }
-      }
-      $result['vernacular']['names'] = array_unique($result["vernacular"]["names"]);
-
-      array_push($results, $result);
-    }
+//    // Populate image urls
+//    foreach ($resultsTmp as $result) {
+//      $result = array_merge($result, get_attribs($result["tid"]));
+//      $result["image"] = get_thumbnail($result["tid"]);
+//
+//      $result["checklists"] = [];
+//      $clidsTemp = get_checklists($result["tid"]);
+//      foreach ($clidsTemp as $clid) {
+//        array_push($result["checklists"], $clid[FmChecklistTbl::$CLID]);
+//      }
+//
+//      $result["vernacular"] = [];
+//      $result["vernacular"]["names"] = [];
+//      $vernacularsTmp = get_vernacular_names($result["tid"]);
+//      foreach ($vernacularsTmp as $vn) {
+//        $basename_is_set = array_key_exists("basename", $result["vernacular"]);
+//
+//        if (!$basename_is_set && strtolower($vn[TaxaVernacularTbl::$LANGUAGE]) === 'basename') {
+//          $result["vernacular"]["basename"] = $vn[TaxaVernacularTbl::$VERNACULAR_NAME];
+//        } else {
+//          array_push($result["vernacular"]["names"], $vn[TaxaVernacularTbl::$VERNACULAR_NAME]);
+//        }
+//      }
+//      $result['vernacular']['names'] = array_unique($result["vernacular"]["names"]);
+//
+//      array_push($results, $result);
+//    }
 
     return $results;
   }

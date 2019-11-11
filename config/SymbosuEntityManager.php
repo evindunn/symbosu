@@ -1,4 +1,7 @@
 <?php
+
+use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\ORM\Configuration;
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\DatabaseDriver;
@@ -36,6 +39,11 @@ class SymbosuEntityManager {
 
   private static function getMetaConfig() {
     global $SERVER_ROOT;
+
+    if (SymbosuEntityManager::$cache == null) {
+      SymbosuEntityManager::$cache = new ArrayCache();
+    }
+
     return Setup::createAnnotationMetadataConfiguration(
       array("$SERVER_ROOT/config/models"),
       SymbosuEntityManager::$isDevMode,
