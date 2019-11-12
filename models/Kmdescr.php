@@ -11,6 +11,30 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  */
 class Kmdescr {
+  public static $GARDEN_CIDS = [
+    # Core attributes
+      680,    # Sunlight
+      683,    # Moisture
+      738,    # Width
+      140,    # Height
+      # Plant features
+      612,    # Flower color
+      165,    # Bloom months
+      685,    # Wildlife support
+      136,    # Lifespan
+      100,    # Foliage type
+      137,    # Plant type
+      # Growth & maintenance
+      679,    # Landscape uses
+      767,    # Cultivation preferences
+      688,    # Plant behavior
+      670,    # Propagation
+      684,    # Ease of growth
+      # Beyond the garden
+      163,    # Habitat
+      19,     # Ecoregion
+    ];
+  
   /**
    * @var integer
    * @ORM\Id

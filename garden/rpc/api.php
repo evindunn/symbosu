@@ -39,6 +39,24 @@
     return $results;
   }
 
+  function get_all_attrib_vals($cid) {
+    $em = SymbosuEntityManager::getEntityManager();
+    $characterStateRepo = $em->getRepository("Kmcs");
+    $csQuery = $characterStateRepo->createQueryBuilder("cs")
+      ->select(["cs.charstatename"])
+      ->distinct()
+      ->innerJoin("Kmdescr", "d", "WITH", "(cs.cid = d.cid AND cs.cs = d.cs)")
+      ->innerJoin("Fmchklsttaxalink", "tl", "WITH", "d.tid = tl.tid")
+      ->where("cs.cid = $cid")
+      ->andWhere("tl.clid = " . Fmchecklists::$CLID_GARDEN_ALL)
+      ->orderBy("cs.sortsequence");
+
+    return array_map(
+      function ($characterState) { return $characterState["charstatename"]; },
+      $csQuery->getQuery()->getArrayResult()
+    );
+  }
+
   /**
    * Returns all unique taxa with thumbnail urls
    * @params $_GET
@@ -86,8 +104,10 @@
     $attributeQuery = $em->createQueryBuilder()
       ->select(["d.cid", "s.charstatename"])
       ->from("Kmdescr", "d")
-      ->innerJoin("Kmcs", "s", "WITH", "(d.cid = s.cid AND d.cs = s.cs)")
-      ->where("d.tid = :tid");
+      ->innerJoin("Kmcs", "s", "WITH", "(d.cid = s.cid AND d.cs = s.cs)");
+    $attributeQuery = $attributeQuery
+      ->where($attributeQuery->expr()->in("d.cid", Kmdescr::$GARDEN_CIDS))
+      ->andWhere("d.tid = :tid");
 
     foreach ($gardenTaxa as $taxa) {
       $tid = $taxa->getTid();
