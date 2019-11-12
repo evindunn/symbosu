@@ -230,9 +230,6 @@ include_once("../../config/symbini.php");
         "thumbnailUrl" => "",
         "checklists" => $taxa->getGardenChecklistIds()
       ]);
-
-      var_dump($taxa->getGardenChecklistIds());
-      break;
     }
 
     ini_set("memory_limit", $memory_limit);

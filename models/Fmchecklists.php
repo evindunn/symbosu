@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Fmchecklists
  *
+ * @ORM\Cache("READ_ONLY")
  * @ORM\Table(name="fmchecklists", indexes={@ORM\Index(name="FK_checklists_uid", columns={"uid"}), @ORM\Index(name="name", columns={"Name", "Type"})})
  * @ORM\Entity
  */
@@ -209,6 +210,7 @@ class Fmchecklists
 
     /**
      * @var ArrayCollection
+     * @ORM\Cache("READ_ONLY")
      * @ORM\OneToMany(targetEntity="Fmchklsttaxalink", mappedBy="checklist")
      */
     private $taxaLinks;

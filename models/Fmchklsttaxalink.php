@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Fmchklsttaxalink
- *
+ * @ORM\Cache("READ_ONLY")
  * @ORM\Table(name="fmchklsttaxalink", indexes={@ORM\Index(name="FK_chklsttaxalink_cid", columns={"CLID"}), @ORM\Index(name="IDX_7E381424C4FE2EBB", columns={"TID"})})
  * @ORM\Entity
  */
@@ -109,6 +109,7 @@ class Fmchklsttaxalink
      * @var \Fmchecklists
      *
      * @ORM\Id
+     * @ORM\Cache("READ_ONLY")
      * @ORM\ManyToOne(targetEntity="Fmchecklists", inversedBy="taxaLinks")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="CLID", referencedColumnName="CLID")
@@ -118,7 +119,7 @@ class Fmchklsttaxalink
 
     /**
      * @var \Taxa
-     *
+     * @ORM\Cache("READ_ONLY")
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity="Taxa", inversedBy="checklistLinks")
      * @ORM\JoinColumns({

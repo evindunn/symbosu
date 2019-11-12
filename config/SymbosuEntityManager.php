@@ -1,6 +1,11 @@
 <?php
 
+use Doctrine\Common\Cache\ApcuCache;
 use Doctrine\Common\Cache\MemcachedCache;
+use Doctrine\ORM\Cache\CacheConfiguration;
+use Doctrine\ORM\Cache\DefaultCacheFactory;
+use Doctrine\ORM\Cache\Region\DefaultRegion;
+use Doctrine\ORM\Cache\RegionsConfiguration;
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 
@@ -39,19 +44,22 @@ class SymbosuEntityManager {
     global $SERVER_ROOT;
 
     if (SymbosuEntityManager::$cache == null) {
-      $memcached = new Memcached();
-      $memcached->addServer("memcached", 11211);
-      SymbosuEntityManager::$cache = new MemcachedCache();
-      SymbosuEntityManager::$cache->setMemcached($memcached);
+      SymbosuEntityManager::$cache = new ApcuCache();
     }
 
-    return Setup::createAnnotationMetadataConfiguration(
+    $config = Setup::createAnnotationMetadataConfiguration(
       array("$SERVER_ROOT/config/models"),
       SymbosuEntityManager::$isDevMode,
       SymbosuEntityManager::$proxyDir,
       SymbosuEntityManager::$cache,
       SymbosuEntityManager::$useSimpleAnnotationReader
     );
+
+    $factory = new DefaultCacheFactory(new RegionsConfiguration(), SymbosuEntityManager::$cache);
+    $config->setSecondLevelCacheEnabled();
+    $config->getSecondLevelCacheConfiguration()->setCacheFactory($factory);
+
+    return $config;
   }
 
   private static function getDbConfig() {
@@ -76,6 +84,7 @@ class SymbosuEntityManager {
         SymbosuEntityManager::getMetaConfig()
       );
     }
+
     return SymbosuEntityManager::$EntityManager;
   }
 }

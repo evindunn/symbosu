@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Taxa
- * @ORM\Cache("NONSTRICT_READ_WRITE")
+ * @ORM\Cache("READ_ONLY")
  * @ORM\Table(name="taxa", uniqueConstraints={@ORM\UniqueConstraint(name="sciname_unique", columns={"SciName", "RankId", "Author"})}, indexes={@ORM\Index(name="unitname1_index", columns={"UnitName1", "UnitName2"}), @ORM\Index(name="sciname_index", columns={"SciName"}), @ORM\Index(name="idx_taxacreated", columns={"InitialTimeStamp"}), @ORM\Index(name="rankid_index", columns={"RankId"}), @ORM\Index(name="FK_taxa_uid_idx", columns={"modifiedUid"})})
  * @ORM\Entity
  */
@@ -160,7 +160,7 @@ class Taxa
 
   /**
    * @var ArrayCollection
-   * @ORM\Cache("NONSTRICT_READ_WRITE")
+   * @ORM\Cache("READ_ONLY")
    * @ORM\OneToMany(targetEntity="Taxavernaculars", mappedBy="tid")
    * @ORM\OrderBy({ "sortsequence": "ASC" })
    */
@@ -168,7 +168,7 @@ class Taxa
 
   /**
    * @var ArrayCollection
-   * @ORM\Cache("NONSTRICT_READ_WRITE")
+   * @ORM\Cache("READ_ONLY")
    * @ORM\OneToMany(targetEntity="Images", mappedBy="tid")
    * @ORM\OrderBy({ "sortsequence": "ASC" })
    */
@@ -176,6 +176,7 @@ class Taxa
 
   /**
    * @var ArrayCollection
+   * @ORM\Cache("READ_ONLY")
    * @ORM\OneToMany(targetEntity="Fmchklsttaxalink", mappedBy="taxa"))
    */
     private $checklistLinks;

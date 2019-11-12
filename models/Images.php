@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Images
- *
+ * @ORM\Cache("READ_ONLY")
  * @ORM\Table(name="images", indexes={@ORM\Index(name="FK_images_occ", columns={"occid"}), @ORM\Index(name="FK_photographeruid", columns={"photographeruid"}), @ORM\Index(name="Index_tid", columns={"tid"}), @ORM\Index(name="Index_images_datelastmod", columns={"InitialTimeStamp"})})
  * @ORM\Entity
  */
@@ -206,6 +206,7 @@ class Images
      * @var \Taxa
      *
      * @ORM\ManyToOne(targetEntity="Taxa", inversedBy="images")
+     * @ORM\Cache("READ_ONLY")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="tid", referencedColumnName="TID")
      * })
