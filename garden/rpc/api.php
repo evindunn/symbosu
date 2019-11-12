@@ -18,9 +18,6 @@
   include_once($SERVER_ROOT . "/config/SymbosuEntityManager.php");
   include_once($SERVER_ROOT . "/models/Fmchecklists.php");
 
-
-  $CLID_GARDEN_ALL = 54;
-
   $CID_SUNLIGHT = 680;
   $CID_MOISTURE = 683;
   $CID_WIDTH = 738;
@@ -183,19 +180,21 @@
    * Returns canned searches for the react page
    */
   function get_canned_searches() {
-    global $CLID_GARDEN_ALL;
+    $em = SymbosuEntityManager::getEntityManager();
+    $checklistRepo = $em->getRepository("Fmchecklists");
+    $gardenChecklists = $checklistRepo->findBy([ "parentclid" => Fmchecklists::$CLID_GARDEN_ALL ]);
+    $results = [];
 
-    $sql = get_select_statement(
-        "fmchecklists",
-        [
-          FmChecklistTbl::$CLID,
-          FmChecklistTbl::$NAME,
-          FmChecklistTbl::$ICON_URL,
-          FmChecklistTbl::$TITLE . ' as description',
-        ]
-    );
-    $sql .= 'WHERE ' . FmChecklistTbl::$PARENT_CLID . ' = ' . $CLID_GARDEN_ALL;
-    return run_query($sql);
+    foreach ($gardenChecklists as $cl) {
+      array_push($results, [
+        "clid" => $cl->getClid(),
+        "name" => $cl->getName(),
+        "iconUrl" => $cl->getIconurl(),
+        "description" => $cl->getTitle()
+      ]);
+    }
+
+    return $results;
   }
 
   /**
@@ -203,8 +202,6 @@
    * @params $_GET
    */
   function get_garden_taxa($params) {
-    global $CLID_GARDEN_ALL;
-
     $memory_limit = ini_get("memory_limit");
     ini_set("memory_limit", "1G");
     set_time_limit(0);
@@ -222,7 +219,7 @@
     $gardenTaxa = $taxaRepo->createQueryBuilder("t")
       ->innerJoin("Fmchklsttaxalink", "tl", "WITH", "t.tid = tl.tid")
       ->innerJoin("Fmchecklists", "cl", "WITH", "tl.clid = cl.clid")
-      ->where("cl.parentclid = $CLID_GARDEN_ALL")
+      ->where("cl.parentclid = " . Fmchecklists::$CLID_GARDEN_ALL)
       ->getQuery()
       ->execute();
 
@@ -231,7 +228,7 @@
       ->from("Fmchklsttaxalink", "tl")
       ->innerJoin("Fmchecklists", "cl", "WITH", "tl.clid = cl.clid")
       ->where("tl.tid = :tid")
-      ->andWhere("cl.parentclid = $CLID_GARDEN_ALL");
+      ->andWhere("cl.parentclid = " . Fmchecklists::$CLID_GARDEN_ALL);
 
     $thumbnailQuery = $em->createQueryBuilder()
       ->select(["i.thumbnailurl"])
@@ -239,8 +236,6 @@
       ->where("i.tid = :tid")
       ->orderBy("i.sortsequence")
       ->setMaxResults(1);
-
-    $counter = 0;
 
     foreach ($gardenTaxa as $taxa) {
       $tid = $taxa->getTid();
@@ -278,7 +273,7 @@
 //
 //    $sql .= 'LEFT JOIN taxavernaculars v ON t.' . TaxaTbl::$TID . ' = v.' . TaxaVernacularTbl::$TID . ' ';
 //    $sql .= 'RIGHT JOIN fmchklsttaxalink chk ON t.' . TaxaTbl::$TID . ' = chk.' . FmChecklistTaxaLinkTbl::$TID . ' ';
-//    $sql .= 'WHERE chk.' . FmChecklistTaxaLinkTbl::$CLID . " = $CLID_GARDEN_ALL ";
+//    $sql .= 'WHERE chk.' . FmChecklistTaxaLinkTbl::$CLID . " = Fmchecklists::$CLID_GARDEN_ALL ";
 //
 //    if ($search === null) {
 //      $sql .= 'AND (t.' . TaxaTbl::$SCINAME . ' IS NOT NULL ';

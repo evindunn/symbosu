@@ -13,6 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Fmchecklists
 {
+    public static $CLID_GARDEN_ALL = 54;
+
     /**
      * @var int
      *
@@ -215,10 +217,6 @@ class Fmchecklists
 
     public function __construct() {
       $this->children = new ArrayCollection();
-    }
-
-    public function getTaxa() {
-      return [];
     }
 
     public function isGardenChecklist() {

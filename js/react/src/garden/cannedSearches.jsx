@@ -43,8 +43,8 @@ class CannedSearchResult extends React.Component {
               <img
                 className="d-block"
                 style={{width: "100%", height: "100%", objectFit: "cover"}}
-                src={this.props.src}
-                alt={this.props.src}
+                src={this.props.iconUrl}
+                alt={this.props.iconUrl}
                 onMouseOver={ this.onMouseOver }
               />
               <div
@@ -79,6 +79,14 @@ class CannedSearchResult extends React.Component {
     );
   }
 }
+
+CannedSearchResult.defaultProps = {
+  title: "",
+  iconUrl: "",
+  description: "",
+  onFilter: () => {},
+  onClick: () => {},
+};
 
 class CannedSearchContainer extends React.Component {
   constructor(props) {
@@ -119,7 +127,7 @@ class CannedSearchContainer extends React.Component {
                           <CannedSearchResult
                             title={searchResult.name}
                             description={ searchResult.description }
-                            src={ `${searchResult.iconUrl}` }
+                            iconUrl={ searchResult.iconUrl }
                             href={getChecklistPage(searchResult.clid)}
                             onFilter={() => { this.props.onFilter(searchResult.clid); }}
                           />
