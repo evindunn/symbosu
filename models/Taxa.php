@@ -669,4 +669,11 @@ class Taxa
     {
         return $this->modifieduid;
     }
+
+  /**
+   * @return ArrayCollection
+   */
+  public function getAttributes() {
+    return $this->attributes;
+  }
 }
