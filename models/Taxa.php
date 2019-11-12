@@ -193,10 +193,12 @@ class Taxa
     }
 
     public function getVernacularNames() {
-      return $this->vernacularNames
-        ->map(function ($vn) { return $vn->getVernacularname(); })
-        ->filter(function($vn) { return $vn != $this->basename; })
-        ->toArray();
+      return array_unique(
+        $this->vernacularNames
+          ->map(function ($vn) { return $vn->getVernacularname(); })
+          ->filter(function($vn) { return $vn != $this->basename; })
+          ->toArray()
+      );
     }
 
     public function getImages() {
@@ -205,11 +207,18 @@ class Taxa
 
     public function getChecklistIds() {
       return $this->checklistLinks
-        ->map(function($link) { return $link->getClid(); })
+        ->map(function($link) { return $link->getChecklist()->getClid(); })
         ->toArray();
     }
 
-    public function getThumbnail() {
+    public function getGardenChecklistIds() {
+      return $this->checklistLinks
+        ->filter(function($link) { return $link->getChecklist()->isGardenChecklist(); })
+        ->map(function($link) { return $link->getChecklist()->getClid(); })
+        ->toArray();
+    }
+
+    public function getThumbnailUrl() {
       return $this->images->first()->getThumbnailurl();
     }
 

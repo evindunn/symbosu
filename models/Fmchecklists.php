@@ -209,7 +209,7 @@ class Fmchecklists
 
     /**
      * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="Fmchklsttaxalink", mappedBy="checklist", fetch="EAGER")
+     * @ORM\OneToMany(targetEntity="Fmchklsttaxalink", mappedBy="checklist")
      */
     private $taxaLinks;
 
@@ -219,8 +219,12 @@ class Fmchecklists
 
     public function getTaxa() {
       return $this->taxaLinks
-        ->map(function($taxaLink) { return $taxaLink->getTaxa()->getTid(); })
+        ->map(function($taxaLink) { return $taxaLink->getTaxa(); })
         ->toArray();
+    }
+
+    public function isGardenChecklist() {
+      return $this->parentclid == 54;
     }
 
   /**

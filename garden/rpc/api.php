@@ -1,5 +1,8 @@
 <?php
-  include_once("../../config/symbini.php");
+
+use Doctrine\Common\Collections\ArrayCollection;
+
+include_once("../../config/symbini.php");
 
   global $SERVER_ROOT, $CHARSET;
 
@@ -55,70 +58,6 @@
 
     sort($results);
     return $results;
-  }
-
-/**
- * Returns the most prominent image for the given taxa ID
- * @param tid int The tid for the image
- * @return string The first thumbnail for $tid, else "" if one does not exist
- * @throws \Doctrine\ORM\ORMException
- */
-  function get_thumbnail($tid) {
-    $sql = get_select_statement("images", [ ImageTbl::$THUMBNAIL_URL ]);
-    $sql .= 'WHERE ' . ImageTbl::$TID . " = $tid ";
-    $sql .= 'ORDER BY ' . ImageTbl::$SORT_SEQUENCE . ' LIMIT 1;';
-    $res = run_query($sql);
-
-    if (count($res) > 0 && key_exists(ImageTbl::$THUMBNAIL_URL, $res[0])) {
-      $result = $res[0][ImageTbl::$THUMBNAIL_URL];
-      return resolve_img_path($result);
-    }
-
-    return "";
-  }
-
-  /**
-   * @param $tid TID to query
-   * @return array Array of vernacular names for the TID
-   */
-  function get_vernacular_names($tid) {
-
-    $vn_sql = get_select_statement(
-        "taxavernaculars",
-        [
-            TaxaVernacularTbl::$VERNACULAR_NAME,
-            TaxaVernacularTbl::$LANGUAGE,
-        ]
-    );
-    $vn_sql .= ' WHERE ' . TaxaTbl::$TID . " = $tid ";
-    $vn_sql .= ' ORDER BY ' . TaxaVernacularTbl::$SORT_SEQ . ';';
-
-    return run_query($vn_sql);
-  }
-
-  /**
-   * @param $tid TID to query
-   * @return array Array of garden checklists that the TID is a member of
-   */
-  function get_checklists($tid) {
-    global $CLID_GARDEN_ALL;
-
-    $cl_sql = get_select_statement(
-        "fmchklsttaxalink tl",
-        [
-            'tl.' . FmChecklistTaxaLinkTbl::$CLID
-        ]
-    );
-
-    $cl_sql .= 'INNER JOIN taxa t ON ';
-    $cl_sql .= 'tl.' . FmChecklistTaxaLinkTbl::$TID . ' = t.' . TaxaTbl::$TID . ' ';
-    $cl_sql .= 'INNER JOIN fmchecklists cl ON ';
-    $cl_sql .= 'tl.' . FmChecklistTaxaLinkTbl::$CLID . ' = cl.' . FmChecklistTbl::$CLID . ' ';
-    $cl_sql .= 'WHERE t.' . TaxaTbl::$TID . " = $tid AND ";
-    $cl_sql .= 'cl.' . FmChecklistTbl::$PARENT_CLID . " = $CLID_GARDEN_ALL ";
-    $cl_sql .= 'GROUP BY ' . FmChecklistTbl::$CLID;
-
-    return run_query($cl_sql);
   }
 
   function get_attribs($tid) {
@@ -263,37 +202,41 @@
   function get_garden_taxa($params) {
     global $CLID_GARDEN_ALL;
 
+    $memory_limit = ini_get("memory_limit");
+    ini_set("memory_limit", "1G");
+    set_time_limit(0);
+
     $search = null;
     if (key_exists("search", $params) && $params["search"] !== "" && $params["search"] !== null) {
       $search = strtolower(preg_replace("/[;()-]/", '', $params["search"]));
     }
 
     $em = SymbosuEntityManager::getEntityManager();
-//    $taxaRepo = $em->getRepository("Taxa");
     $checklistRepo = $em->getRepository("Fmchecklists");
 
-    $gCl = $checklistRepo->find($CLID_GARDEN_ALL);
-    $results = [
-      "clid" => $gCl->getClid(),
-      "taxa" => $gCl->getTaxa()
-    ];
+    $results = [];
 
-//    $cLinks = $checklistLinkRepo->findBy([ "clid" => $CLID_GARDEN_ALL ]);
-//    $result = $taxaRepo->find(2379);
-//    $results = [
-//      [
-//        "tid" => $result->getTid(),
-//        "sciname" => $result->getSciname(),
-//        "basename" => $result->getBaseName(),
-//        "vernacularnames" => $result->getVernacularNames(),
-//        "checkListIds" => $result->getChecklistIds(),
-//        "thumbnail" => $result->getThumbnail()
-//      ]
-//    ];
-
-//    $taxaRepo->clear();
+    $gardenTaxa = $checklistRepo->find($CLID_GARDEN_ALL)->getTaxa();
     $checklistRepo->clear();
-//    $checklistLinkRepo->clear();
+
+    foreach ($gardenTaxa as $taxa) {
+      $tid = $taxa->getTid();
+
+      array_push($results, [
+        "tid" => $tid,
+        "sciname" => $taxa->getSciname(),
+        "basename" => $taxa->getBasename(),
+        "vernacularNames" => $taxa->getVernacularNames(),
+        "thumbnailUrl" => "",
+        "checklists" => $taxa->getGardenChecklistIds()
+      ]);
+
+      var_dump($taxa->getGardenChecklistIds());
+      break;
+    }
+
+    ini_set("memory_limit", $memory_limit);
+    set_time_limit(30);
 
     if ($search !== null) {
 

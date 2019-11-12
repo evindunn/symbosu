@@ -34,6 +34,9 @@ services:
       - ./config/schema-1.0/utf8/db_schema-1.0.sql:/docker-entrypoint-initdb.d/1.sql:ro
       - ./config/schema-1.0/utf8/db_schema_patch-1.1.sql:/docker-entrypoint-initdb.d/2.sql:ro
 
+  memcached:
+    image: memcached:1.5-alpine
+
 volumes:
   vol-oregonflora-db:
     name: vol-oregonflora-db

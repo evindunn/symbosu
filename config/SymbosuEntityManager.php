@@ -1,10 +1,8 @@
 <?php
 
-use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\ORM\Configuration;
+use Doctrine\Common\Cache\MemcachedCache;
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Mapping\Driver\DatabaseDriver;
 
 include_once(__DIR__ . "/symbini.php");
 include_once("$SERVER_ROOT/config/dbconnection.php");
@@ -41,7 +39,10 @@ class SymbosuEntityManager {
     global $SERVER_ROOT;
 
     if (SymbosuEntityManager::$cache == null) {
-      SymbosuEntityManager::$cache = new ArrayCache();
+      $memcached = new Memcached();
+      $memcached->addServer("memcached", 11211);
+      SymbosuEntityManager::$cache = new MemcachedCache();
+      SymbosuEntityManager::$cache->setMemcached($memcached);
     }
 
     return Setup::createAnnotationMetadataConfiguration(
