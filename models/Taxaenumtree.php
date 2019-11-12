@@ -44,14 +44,10 @@ class Taxaenumtree
     private $parenttid;
 
     /**
-     * @var \Taxauthority
+     * @var integer
      *
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="NONE")
-     * @ORM\OneToOne(targetEntity="Taxauthority")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="taxauthid", referencedColumnName="taxauthid")
-     * })
      */
     private $taxauthid;
 
@@ -131,11 +127,11 @@ class Taxaenumtree
     /**
      * Set taxauthid.
      *
-     * @param \Taxauthority $taxauthid
+     * @param integer $taxauthid
      *
      * @return Taxaenumtree
      */
-    public function setTaxauthid(\Taxauthority $taxauthid)
+    public function setTaxauthid($taxauthid)
     {
         $this->taxauthid = $taxauthid;
 
@@ -145,7 +141,7 @@ class Taxaenumtree
     /**
      * Get taxauthid.
      *
-     * @return \Taxauthority
+     * @return integer
      */
     public function getTaxauthid()
     {

@@ -6,9 +6,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Fmchklsttaxalink
- * @ORM\Cache("READ_ONLY")
- * @ORM\Table(name="fmchklsttaxalink", indexes={@ORM\Index(name="FK_chklsttaxalink_cid", columns={"CLID"}), @ORM\Index(name="IDX_7E381424C4FE2EBB", columns={"TID"})})
  * @ORM\Entity
+ * @ORM\Table(name="fmchklsttaxalink", indexes={@ORM\Index(name="FK_chklsttaxalink_cid", columns={"CLID"}), @ORM\Index(name="IDX_7E381424C4FE2EBB", columns={"TID"})})
  */
 class Fmchklsttaxalink
 {
@@ -106,28 +105,19 @@ class Fmchklsttaxalink
     private $initialtimestamp = 'CURRENT_TIMESTAMP';
 
     /**
-     * @var \Fmchecklists
+     * @var integer
      *
      * @ORM\Id
-     * @ORM\Cache("READ_ONLY")
-     * @ORM\ManyToOne(targetEntity="Fmchecklists", inversedBy="taxaLinks")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="CLID", referencedColumnName="CLID")
-     * })
+     * @ORM\Column(name="clid", type="integer")
      */
-    private $checklist;
+    private $clid;
 
     /**
-     * @var \Taxa
-     * @ORM\Cache("READ_ONLY")
+     * @var integer
      * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="Taxa", inversedBy="checklistLinks")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="TID", referencedColumnName="TID")
-     * })
+     * @ORM\Column(name="tid", type="integer")
      */
-    private $taxa;
-
+    private $tid;
 
     /**
      * Set morphospecies.
@@ -444,13 +434,13 @@ class Fmchklsttaxalink
     /**
      * Set clid.
      *
-     * @param \Fmchecklists $checklist
+     * @param integer $clid
      *
      * @return Fmchklsttaxalink
      */
-    public function setChecklist(\Fmchecklists $checklist)
+    public function setClid($clid)
     {
-        $this->checklist = $checklist;
+        $this->clid = $clid;
 
         return $this;
     }
@@ -458,23 +448,23 @@ class Fmchklsttaxalink
     /**
      * Get clid.
      *
-     * @return \Fmchecklists
+     * @return integer
      */
-    public function getChecklist()
+    public function getClid()
     {
-        return $this->checklist;
+        return $this->clid;
     }
 
     /**
      * Set tid.
      *
-     * @param \Taxa $taxa
+     * @param integer $tid
      *
      * @return Fmchklsttaxalink
      */
-    public function setTaxa(\Taxa $taxa)
+    public function setTid($tid)
     {
-        $this->taxa = $taxa;
+        $this->tid = $tid;
 
         return $this;
     }
@@ -482,10 +472,10 @@ class Fmchklsttaxalink
     /**
      * Get tid.
      *
-     * @return \Taxa
+     * @return integer
      */
-    public function getTaxa()
+    public function getTid()
     {
-        return $this->taxa;
+        return $this->tid;
     }
 }

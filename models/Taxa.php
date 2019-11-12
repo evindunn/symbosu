@@ -134,26 +134,22 @@ class Taxa
     private $securitystatus = '0';
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      *
      * @ORM\Column(name="modifiedTimeStamp", type="datetime", nullable=true)
      */
     private $modifiedtimestamp;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="InitialTimeStamp", type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
     private $initialtimestamp = 'CURRENT_TIMESTAMP';
 
     /**
-     * @var \Users
+     * @var integer
      *
-     * @ORM\ManyToOne(targetEntity="Users")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="modifiedUid", referencedColumnName="uid")
-     * })
      */
     private $modifieduid;
 
@@ -174,13 +170,6 @@ class Taxa
    */
     private $images;
 
-  /**
-   * @var ArrayCollection
-   * @ORM\Cache("READ_ONLY")
-   * @ORM\OneToMany(targetEntity="Fmchklsttaxalink", mappedBy="taxa"))
-   */
-    private $checklistLinks;
-
     /**
      * @var string
      */
@@ -189,7 +178,6 @@ class Taxa
     public function __construct() {
       $this->vernacularNames = new ArrayCollection();
       $this->images = new ArrayCollection();
-      $this->checklistLinks = new ArrayCollection();
       $this->basename = null;
     }
 
@@ -204,23 +192,6 @@ class Taxa
 
     public function getImages() {
       return $this->images;
-    }
-
-    public function getChecklistIds() {
-      return $this->checklistLinks
-        ->map(function($link) { return $link->getChecklist()->getClid(); })
-        ->toArray();
-    }
-
-    public function getGardenChecklistIds() {
-      return $this->checklistLinks
-        ->filter(function($link) { return $link->getChecklist()->isGardenChecklist(); })
-        ->map(function($link) { return $link->getChecklist()->getClid(); })
-        ->toArray();
-    }
-
-    public function getThumbnailUrl() {
-      return $this->images->first()->getThumbnailurl();
     }
 
     public function getBaseName() {
@@ -630,7 +601,7 @@ class Taxa
     /**
      * Set modifiedtimestamp.
      *
-     * @param \DateTime|null $modifiedtimestamp
+     * @param DateTime|null $modifiedtimestamp
      *
      * @return Taxa
      */
@@ -644,7 +615,7 @@ class Taxa
     /**
      * Get modifiedtimestamp.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
     public function getModifiedtimestamp()
     {
@@ -654,7 +625,7 @@ class Taxa
     /**
      * Set initialtimestamp.
      *
-     * @param \DateTime $initialtimestamp
+     * @param DateTime $initialtimestamp
      *
      * @return Taxa
      */
@@ -668,7 +639,7 @@ class Taxa
     /**
      * Get initialtimestamp.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getInitialtimestamp()
     {
@@ -678,11 +649,11 @@ class Taxa
     /**
      * Set modifieduid.
      *
-     * @param \Users|null $modifieduid
+     * @param integer $modifieduid
      *
      * @return Taxa
      */
-    public function setModifieduid(\Users $modifieduid = null)
+    public function setModifieduid($modifieduid = null)
     {
         $this->modifieduid = $modifieduid;
 
@@ -692,7 +663,7 @@ class Taxa
     /**
      * Get modifieduid.
      *
-     * @return \Users|null
+     * @return integer
      */
     public function getModifieduid()
     {

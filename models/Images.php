@@ -193,12 +193,8 @@ class Images
     private $occid;
 
     /**
-     * @var \Users
+     * @var integer
      *
-     * @ORM\ManyToOne(targetEntity="Users")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="photographeruid", referencedColumnName="uid")
-     * })
      */
     private $photographeruid;
 
@@ -803,11 +799,11 @@ class Images
     /**
      * Set photographeruid.
      *
-     * @param \Users|null $photographeruid
+     * @param integer|null $photographeruid
      *
      * @return Images
      */
-    public function setPhotographeruid(\Users $photographeruid = null)
+    public function setPhotographeruid($photographeruid = null)
     {
         $this->photographeruid = $photographeruid;
 
@@ -817,7 +813,7 @@ class Images
     /**
      * Get photographeruid.
      *
-     * @return \Users|null
+     * @return integer|null
      */
     public function getPhotographeruid()
     {

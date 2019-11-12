@@ -1,61 +1,50 @@
 <?php
 
 use Doctrine\Common\Cache\ApcuCache;
-use Doctrine\Common\Cache\MemcachedCache;
-use Doctrine\ORM\Cache\CacheConfiguration;
+use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\ORM\Cache\DefaultCacheFactory;
-use Doctrine\ORM\Cache\Region\DefaultRegion;
 use Doctrine\ORM\Cache\RegionsConfiguration;
-use Doctrine\ORM\Tools\Setup;
+use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 
 include_once(__DIR__ . "/symbini.php");
 include_once("$SERVER_ROOT/config/dbconnection.php");
 require_once("$SERVER_ROOT/vendor/autoload.php");
 
-include_once ("$SERVER_ROOT/models/Adminlanguages.php");
-include_once ("$SERVER_ROOT/models/Agents.php");
-include_once ("$SERVER_ROOT/models/Fmchecklists.php");
-include_once ("$SERVER_ROOT/models/Fmchklsttaxalink.php");
-include_once ("$SERVER_ROOT/models/Images.php");
-include_once ("$SERVER_ROOT/models/Institutions.php");
-include_once ("$SERVER_ROOT/models/Kmcharacters.php");
-include_once ("$SERVER_ROOT/models/Kmcharheading.php");
-include_once ("$SERVER_ROOT/models/Kmcs.php");
-include_once ("$SERVER_ROOT/models/Omcollections.php");
-include_once ("$SERVER_ROOT/models/Omoccurrences.php");
-include_once ("$SERVER_ROOT/models/Taxa.php");
-include_once ("$SERVER_ROOT/models/Taxaenumtree.php");
-include_once ("$SERVER_ROOT/models/Taxauthority.php");
-include_once ("$SERVER_ROOT/models/Taxavernaculars.php");
-include_once ("$SERVER_ROOT/models/Users.php");
+foreach (glob("$SERVER_ROOT/models/*.php") as $file) {
+  include_once($file);
+}
 
 
 class SymbosuEntityManager {
 
   // Doctrine config
-  private static $isDevMode = true;
-  private static $proxyDir = null;
-  private static $cache = null;
-  private static $useSimpleAnnotationReader = false;
   private static $EntityManager = null;
 
   private static function getMetaConfig() {
     global $SERVER_ROOT;
+    global $IS_DEV;
 
-    if (SymbosuEntityManager::$cache == null) {
-      SymbosuEntityManager::$cache = new ApcuCache();
+    $config = new Configuration();
+
+    $config->setProxyDir("$SERVER_ROOT/temp/proxies");
+    $config->setProxyNamespace("Symbosu\Proxies");
+
+    if ($IS_DEV) {
+      $cache = new ArrayCache();
+      $config->setAutoGenerateProxyClasses(true);
+    } else {
+      $cache = new ApcuCache();
+      $config->setAutoGenerateProxyClasses(false);
     }
 
-    $config = Setup::createAnnotationMetadataConfiguration(
-      array("$SERVER_ROOT/config/models"),
-      SymbosuEntityManager::$isDevMode,
-      SymbosuEntityManager::$proxyDir,
-      SymbosuEntityManager::$cache,
-      SymbosuEntityManager::$useSimpleAnnotationReader
-    );
+    $config->setMetadataCacheImpl($cache);
+    $config->setQueryCacheImpl($cache);
 
-    $factory = new DefaultCacheFactory(new RegionsConfiguration(), SymbosuEntityManager::$cache);
+    $driverImpl = $config->newDefaultAnnotationDriver("$SERVER_ROOT/models", false);
+    $config->setMetadataDriverImpl($driverImpl);
+
+    $factory = new DefaultCacheFactory(new RegionsConfiguration(), $cache);
     $config->setSecondLevelCacheEnabled();
     $config->getSecondLevelCacheConfiguration()->setCacheFactory($factory);
 

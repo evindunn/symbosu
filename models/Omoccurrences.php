@@ -746,12 +746,8 @@ class Omoccurrences
     private $collid;
 
     /**
-     * @var \Agents
+     * @var integer
      *
-     * @ORM\ManyToOne(targetEntity="Agents")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="recordedbyid", referencedColumnName="agentid")
-     * })
      */
     private $recordedbyid;
 
@@ -766,12 +762,8 @@ class Omoccurrences
     private $tidinterpreted;
 
     /**
-     * @var \Users
+     * @var integer
      *
-     * @ORM\ManyToOne(targetEntity="Users")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="observeruid", referencedColumnName="uid")
-     * })
      */
     private $observeruid;
 
@@ -3261,11 +3253,11 @@ class Omoccurrences
     /**
      * Set recordedbyid.
      *
-     * @param \Agents|null $recordedbyid
+     * @param integer|null $recordedbyid
      *
      * @return Omoccurrences
      */
-    public function setRecordedbyid(\Agents $recordedbyid = null)
+    public function setRecordedbyid($recordedbyid = null)
     {
         $this->recordedbyid = $recordedbyid;
 
@@ -3275,7 +3267,7 @@ class Omoccurrences
     /**
      * Get recordedbyid.
      *
-     * @return \Agents|null
+     * @return integer|null
      */
     public function getRecordedbyid()
     {
@@ -3309,11 +3301,11 @@ class Omoccurrences
     /**
      * Set observeruid.
      *
-     * @param \Users|null $observeruid
+     * @param integer|null $observeruid
      *
      * @return Omoccurrences
      */
-    public function setObserveruid(\Users $observeruid = null)
+    public function setObserveruid($observeruid = null)
     {
         $this->observeruid = $observeruid;
 
@@ -3323,7 +3315,7 @@ class Omoccurrences
     /**
      * Get observeruid.
      *
-     * @return \Users|null
+     * @return integer|null
      */
     public function getObserveruid()
     {

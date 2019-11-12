@@ -1,15 +1,15 @@
 <?php
 
-
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+
 
 /**
  * Fmchecklists
  *
- * @ORM\Cache("READ_ONLY")
- * @ORM\Table(name="fmchecklists", indexes={@ORM\Index(name="FK_checklists_uid", columns={"uid"}), @ORM\Index(name="name", columns={"Name", "Type"})})
  * @ORM\Entity
+ * @ORM\Table(name="fmchecklists", indexes={@ORM\Index(name="name", columns={"Name", "Type"})})
+ * @ORM\Cache("READ_ONLY")
  */
 class Fmchecklists
 {
@@ -96,8 +96,18 @@ class Fmchecklists
      * @var int|null
      *
      * @ORM\Column(name="parentclid", type="integer", nullable=true, options={"unsigned"=true})
+     * @ORM\ManyToOne(targetEntity="Fmchecklists", inversedBy="images")
+     * @ORM\Cache("READ_ONLY")
      */
     private $parentclid;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\OneToMany(targetEntity="Fmchecklists", mappedBy="clid")
+     * @ORM\Cache("READ_ONLY")
+     */
+    private $children;
 
     /**
      * @var string|null
@@ -198,31 +208,17 @@ class Fmchecklists
     private $initialtimestamp = 'CURRENT_TIMESTAMP';
 
     /**
-     * @var \Users
+     * @var integer
      *
-     * @ORM\ManyToOne(targetEntity="Users")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="uid", referencedColumnName="uid")
-     * })
      */
     private $uid;
 
-
-    /**
-     * @var ArrayCollection
-     * @ORM\Cache("READ_ONLY")
-     * @ORM\OneToMany(targetEntity="Fmchklsttaxalink", mappedBy="checklist")
-     */
-    private $taxaLinks;
-
     public function __construct() {
-      $this->taxaLinks = new ArrayCollection();
+      $this->children = new ArrayCollection();
     }
 
     public function getTaxa() {
-      return $this->taxaLinks
-        ->map(function($taxaLink) { return $taxaLink->getTaxa(); })
-        ->toArray();
+      return [];
     }
 
     public function isGardenChecklist() {
@@ -842,11 +838,11 @@ class Fmchecklists
     /**
      * Set uid.
      *
-     * @param \Users|null $uid
+     * @param integer|null $uid
      *
      * @return Fmchecklists
      */
-    public function setUid(\Users $uid = null)
+    public function setUid($uid = null)
     {
         $this->uid = $uid;
 
@@ -856,7 +852,7 @@ class Fmchecklists
     /**
      * Get uid.
      *
-     * @return \Users|null
+     * @return integer|null
      */
     public function getUid()
     {

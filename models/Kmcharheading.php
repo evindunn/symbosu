@@ -57,14 +57,10 @@ class Kmcharheading
     private $initialtimestamp = 'CURRENT_TIMESTAMP';
 
     /**
-     * @var \Adminlanguages
+     * @var integer
      *
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="NONE")
-     * @ORM\OneToOne(targetEntity="Adminlanguages")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="langid", referencedColumnName="langid")
-     * })
      */
     private $langid;
 
@@ -214,23 +210,9 @@ class Kmcharheading
     }
 
     /**
-     * Set langid.
-     *
-     * @param \Adminlanguages $langid
-     *
-     * @return Kmcharheading
-     */
-    public function setLangid(\Adminlanguages $langid)
-    {
-        $this->langid = $langid;
-
-        return $this;
-    }
-
-    /**
      * Get langid.
      *
-     * @return \Adminlanguages
+     * @return integer
      */
     public function getLangid()
     {

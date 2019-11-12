@@ -1,13 +1,12 @@
 <?php
 
-use Doctrine\Common\Collections\ArrayCollection;
+  use Doctrine\Common\Collections\ArrayCollection;
 
-include_once("../../config/symbini.php");
+  include_once("../../config/symbini.php");
 
   global $SERVER_ROOT, $CHARSET;
 
   include_once($SERVER_ROOT . "/classes/Functional.php");
-  include_once($SERVER_ROOT . "/config/SymbosuEntityManager.php");
   include_once($SERVER_ROOT . "/meta/tables/fmchecklists.php");
   include_once($SERVER_ROOT . "/meta/tables/fmchklsttaxalink.php");
   include_once($SERVER_ROOT . "/meta/tables/images.php");
@@ -15,6 +14,10 @@ include_once("../../config/symbini.php");
   include_once($SERVER_ROOT . "/meta/tables/kmdescr.php");
   include_once($SERVER_ROOT . "/meta/tables/taxa.php");
   include_once($SERVER_ROOT . "/meta/tables/taxavernaculars.php");
+
+  include_once($SERVER_ROOT . "/config/SymbosuEntityManager.php");
+  include_once($SERVER_ROOT . "/models/Fmchecklists.php");
+
 
   $CLID_GARDEN_ALL = 54;
 
@@ -212,23 +215,45 @@ include_once("../../config/symbini.php");
     }
 
     $em = SymbosuEntityManager::getEntityManager();
-    $checklistRepo = $em->getRepository("Fmchecklists");
+    $taxaRepo = $em->getRepository("Taxa");
 
     $results = [];
 
-    $gardenTaxa = $checklistRepo->find($CLID_GARDEN_ALL)->getTaxa();
-    $checklistRepo->clear();
+    $gardenTaxa = $taxaRepo->createQueryBuilder("t")
+      ->innerJoin("Fmchklsttaxalink", "tl", "WITH", "t.tid = tl.tid")
+      ->innerJoin("Fmchecklists", "cl", "WITH", "tl.clid = cl.clid")
+      ->where("cl.parentclid = $CLID_GARDEN_ALL")
+      ->getQuery()
+      ->execute();
+
+    $clQuery = $em->createQueryBuilder()
+      ->select(["cl.clid"])
+      ->from("Fmchklsttaxalink", "tl")
+      ->innerJoin("Fmchecklists", "cl", "WITH", "tl.clid = cl.clid")
+      ->where("tl.tid = :tid")
+      ->andWhere("cl.parentclid = $CLID_GARDEN_ALL");
+
+    $thumbnailQuery = $em->createQueryBuilder()
+      ->select(["i.thumbnailurl"])
+      ->from("Images", "i")
+      ->where("i.tid = :tid")
+      ->orderBy("i.sortsequence")
+      ->setMaxResults(1);
+
+    $counter = 0;
 
     foreach ($gardenTaxa as $taxa) {
       $tid = $taxa->getTid();
+      $clQuery->setParameter("tid", $tid);
+      $thumbnailQuery->setParameter("tid", $tid);
 
       array_push($results, [
         "tid" => $tid,
         "sciname" => $taxa->getSciname(),
         "basename" => $taxa->getBasename(),
         "vernacularNames" => $taxa->getVernacularNames(),
-        "thumbnailUrl" => "",
-        "checklists" => $taxa->getGardenChecklistIds()
+        "thumbnailUrl" => $thumbnailQuery->getQuery()->execute()[0]["thumbnailurl"],
+        "checklists" => array_map(function($cl) { return $cl["clid"]; }, $clQuery->getQuery()->execute())
       ]);
     }
 

@@ -134,12 +134,8 @@ class Institutions
     private $intialtimestamp = 'CURRENT_TIMESTAMP';
 
     /**
-     * @var \Users
+     * @var integer
      *
-     * @ORM\ManyToOne(targetEntity="Users")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="modifieduid", referencedColumnName="uid")
-     * })
      */
     private $modifieduid;
 
@@ -541,11 +537,11 @@ class Institutions
     /**
      * Set modifieduid.
      *
-     * @param \Users|null $modifieduid
+     * @param integer|null $modifieduid
      *
      * @return Institutions
      */
-    public function setModifieduid(\Users $modifieduid = null)
+    public function setModifieduid($modifieduid = null)
     {
         $this->modifieduid = $modifieduid;
 
@@ -555,7 +551,7 @@ class Institutions
     /**
      * Get modifieduid.
      *
-     * @return \Users|null
+     * @return integer|null
      */
     public function getModifieduid()
     {

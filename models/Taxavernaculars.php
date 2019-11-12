@@ -78,12 +78,8 @@ class Taxavernaculars
     private $initialtimestamp = 'CURRENT_TIMESTAMP';
 
     /**
-     * @var \Adminlanguages
+     * @var integer
      *
-     * @ORM\ManyToOne(targetEntity="Adminlanguages")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="langid", referencedColumnName="langid")
-     * })
      */
     private $langid;
 
@@ -303,11 +299,11 @@ class Taxavernaculars
     /**
      * Set langid.
      *
-     * @param \Adminlanguages|null $langid
+     * @param integer|null $langid
      *
      * @return Taxavernaculars
      */
-    public function setLangid(\Adminlanguages $langid = null)
+    public function setLangid($langid = null)
     {
         $this->langid = $langid;
 
@@ -317,7 +313,7 @@ class Taxavernaculars
     /**
      * Get langid.
      *
-     * @return \Adminlanguages|null
+     * @return integer|null
      */
     public function getLangid()
     {
