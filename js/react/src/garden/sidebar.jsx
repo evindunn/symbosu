@@ -5,6 +5,8 @@ import {SearchWidget} from "../common/search.jsx";
 import FeatureSelector from "./featureSelector.jsx";
 
 const CLIENT_ROOT = "..";
+const CID_WIDTH = 738;
+const CID_HEIGHT = 140;
 
 /**
  * @param valueArray {number[]} An array in the form [min, max]
@@ -76,20 +78,23 @@ function PlantNeed(props) {
       </label>
       <select
         name={ props.label.toLowerCase().replace(/[^a-z]/g, '') }
-        className="form-control ml-auto"
+        className="form-control ml-auto text-capitalize"
         style={{ maxWidth: "50%" }}
         value={ props.value }
         onChange={ props.onChange }>
         <option key="select" value="" disabled hidden>Select...</option>
         {
-          props.choices.map((opt) =>
-            <option
-              key={ opt.toLowerCase().replace(/[^a-z]/g, '') }
-              value={ opt.toLowerCase().replace(/[^a-z]/g, '') }
-            >
-              { opt }
-            </option>
-          )
+          props.choices.map((opt) => {
+            return (
+              <option
+                key={ opt.cs }
+                value={ opt.cs }
+                className="text-capitalize"
+              >
+                { opt.charstatename }
+              </option>
+            );
+          })
         }
       </select>
     </div>
@@ -274,16 +279,23 @@ class SideBar extends React.Component {
         {/* Sunlight & Moisture */}
         <div style={{ background: "white" }} className="rounded-border p-4">
           <h4>Plant needs</h4>
-          <PlantNeed
-            label="Sunlight"
-            choices={ ["Sun", "Part-Shade", "Full-Shade"] }
-            value={ this.props.sunlight }
-            onChange={ this.props.onSunlightChanged } />
-          <PlantNeed
-            label="Moisture"
-            choices={ ["Dry", "Moderate", "Wet"] }
-            value={ this.props.moisture }
-            onChange={ this.props.onMoistureChanged } />
+          {
+            Object.keys(this.props.plantNeeds).map((i) => {
+              let plantNeed = this.props.plantNeeds[i];
+              return (
+                <PlantNeed
+                  key={ i }
+                  label={ plantNeed.charname }
+                  choices={
+                    Object.keys(plantNeed.states).map((j) => {
+                      return { cs: j, charstatename: plantNeed.states[j] }
+                    })
+                  }
+                  value={ plantNeed.value }
+                  onChange={ (e) => this.props.onPlantNeedChanged(i, e.target.value) } />
+              )
+            })
+          }
         </div>
 
         {/* Sliders */}
@@ -297,7 +309,7 @@ class SideBar extends React.Component {
                 label="Height (ft)"
                 name="height"
                 value={ this.props.height }
-                onChange={ this.props.onHeightChanged } />
+                onChange={ (e) => this.props.onPlantSizeChanged(CID_HEIGHT, e.target.value) } />
             </div>
             <div
               style={{ width: "1px", borderRight: "1px dashed grey", marginLeft: "-0.5px" }}
@@ -308,7 +320,7 @@ class SideBar extends React.Component {
                 label="Width (ft)"
                 name="width"
                 value={ this.props.width }
-                onChange={ this.props.onWidthChanged } />
+                onChange={ (e) => this.props.onPlantSizeChanged(CID_WIDTH, e.target.value) } />
             </div>
           </div>
         </div>

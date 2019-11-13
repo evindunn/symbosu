@@ -47,7 +47,7 @@ function SearchResult(props) {
               className={useGrid ? "card-img-top" : "d-inline-block mr-1"}
               style={useGrid ? gridImageStyle : listImageStyle}
               alt={props.title}
-              src={props.src}
+              src={props.thumbnailUrl}
             />
             <div className={(useGrid ? "card-body" : "d-inline py-1") + " px-0"} style={{overflow: "hidden"}}>
               <div className={"card-text" + (useGrid ? "" : " d-inline")}>
