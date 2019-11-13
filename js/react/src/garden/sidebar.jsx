@@ -317,14 +317,15 @@ class SideBar extends React.Component {
         <div>
           <SideBarDropdown title="Plant features">
             {
-              Object.keys(this.props.plantFeatures).map((plantFeature) => {
+              Object.keys(this.props.plantFeatures).map((i) => {
+                let plantFeature = this.props.plantFeatures[i];
                 return (
                   <FeatureSelector
-                    key={ plantFeature }
-                    title={ plantFeature }
-                    items={ this.props.plantFeatures[plantFeature] }
+                    key={ i }
+                    title={ plantFeature.charname }
+                    items={ plantFeature.states }
                     onChange={ (featureKey) => {
-                      this.props.onPlantFeaturesChanged(plantFeature, featureKey)
+                      this.props.onPlantFeaturesChanged(i, featureKey)
                     }}
                   />
                 )
@@ -334,14 +335,15 @@ class SideBar extends React.Component {
 
           <SideBarDropdown title="Growth & maintenance">
             {
-              Object.keys(this.props.growthMaintenance).map((plantFeature) => {
+              Object.keys(this.props.growthMaintenance).map((i) => {
+                let plantFeature = this.props.growthMaintenance[i];
                 return (
                   <FeatureSelector
-                    key={ plantFeature }
-                    title={ plantFeature }
-                    items={ this.props.growthMaintenance[plantFeature] }
+                    key={ i }
+                    title={ plantFeature.charname }
+                    items={ plantFeature.states }
                     onChange={ (featureKey) => {
-                      this.props.onGrowthMaintenanceChanged(plantFeature, featureKey)
+                      this.props.onGrowthMaintenanceChanged(i, featureKey)
                     }}
                   />
                 )
@@ -351,14 +353,15 @@ class SideBar extends React.Component {
 
           <SideBarDropdown title="Beyond the garden">
             {
-              Object.keys(this.props.beyondGarden).map((plantFeature) => {
+              Object.keys(this.props.beyondGarden).map((i) => {
+                let plantFeature = this.props.beyondGarden[i];
                 return (
                   <FeatureSelector
-                    key={ plantFeature }
-                    title={ plantFeature }
-                    items={ this.props.beyondGarden[plantFeature] }
+                    key={ i }
+                    title={ plantFeature.charname }
+                    items={ plantFeature.states }
                     onChange={ (featureKey) => {
-                      this.props.onBeyondGardenChanged(plantFeature, featureKey)
+                      this.props.onBeyondGardenChanged(i, featureKey)
                     }}
                   />
                 )

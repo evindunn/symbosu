@@ -8,7 +8,7 @@ class FeatureSelector extends React.Component {
   }
 
   getDropdownId() {
-    return `feature-selector-${this.props.title.replace(' ', '_')}`;
+    return `feature-selector-${this.props.title.replace(/[^A-Za-z0-9]/g, '_')}`;
   }
 
   render() {
@@ -21,7 +21,7 @@ class FeatureSelector extends React.Component {
             aria-controls={ this.getDropdownId() }
             href={ `#${this.getDropdownId()}` }
           >
-            <p style={{ fontSize: "1.1em" }}>{ this.props.title.replace(/_/g, ' ') }</p>
+            <p style={{ fontSize: "1.1em" }}>{ this.props.title }</p>
           </a>
           <div id={ this.getDropdownId() } className="collapse">
             <div className="card card-body">
@@ -34,7 +34,7 @@ class FeatureSelector extends React.Component {
                     return (
                       <li key={ itemKey }>
                         <CheckboxItem
-                          name={ itemKey }
+                          name={ itemVal }
                           value={ itemVal ? "on" : "off" }
                           onChange={ () => this.props.onChange(itemKey) }
                         />

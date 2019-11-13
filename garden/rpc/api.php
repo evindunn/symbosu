@@ -39,22 +39,36 @@
     return $results;
   }
 
-  function get_all_attrib_vals($cid) {
+  function get_garden_characteristics($cids=[]) {
     $em = SymbosuEntityManager::getEntityManager();
-    $characterStateRepo = $em->getRepository("Kmcs");
-    $csQuery = $characterStateRepo->createQueryBuilder("cs")
-      ->select(["cs.charstatename"])
+    $characteristicRepo = $em->getRepository("Kmcharacters");
+    $csQuery = $characteristicRepo->createQueryBuilder("c")
       ->distinct()
-      ->innerJoin("Kmdescr", "d", "WITH", "(cs.cid = d.cid AND cs.cs = d.cs)")
+      ->innerJoin("Kmdescr", "d", "WITH", "c.cid = d.cid")
       ->innerJoin("Fmchklsttaxalink", "tl", "WITH", "d.tid = tl.tid")
-      ->where("cs.cid = $cid")
-      ->andWhere("tl.clid = " . Fmchecklists::$CLID_GARDEN_ALL)
-      ->orderBy("cs.sortsequence");
+      ->where("tl.clid = " . Fmchecklists::$CLID_GARDEN_ALL);
 
-    return array_map(
-      function ($characterState) { return $characterState["charstatename"]; },
-      $csQuery->getQuery()->getArrayResult()
-    );
+    if (count($cids) > 0) {
+      $csQuery->andWhere($csQuery->expr()->in("c.cid", ":cids"));
+      $csQuery->setParameter("cids", $cids);
+    }
+
+    $results = [];
+    foreach ($csQuery->getQuery()->execute() as $characteristic) {
+      $states = $characteristic->getStates()->toArray();
+      $statesMap = [];
+
+      foreach ($states as $cs) {
+        $statesMap[$cs->getCs()] = $cs->getCharstatename();
+      }
+
+      $results[$characteristic->getCid()] = [
+        "charname" => $characteristic->getCharname(),
+        "states" => $statesMap
+      ];
+    }
+
+    return $results;
   }
 
   /**
@@ -102,12 +116,13 @@
 
     // Attributes for the taxa
     $attributeQuery = $em->createQueryBuilder()
-      ->select(["d.cid", "s.charstatename"])
+      ->select(["c.cid", "s.cs"])
       ->from("Kmdescr", "d")
-      ->innerJoin("Kmcs", "s", "WITH", "(d.cid = s.cid AND d.cs = s.cs)");
+      ->innerJoin("Kmcs", "s", "WITH", "(d.cid = s.cid AND d.cs = s.cs)")
+      ->innerJoin("Kmcharacters", "c", "WITH", "d.cid = c.cid")
+      ->where("d.tid = :tid");
     $attributeQuery = $attributeQuery
-      ->where($attributeQuery->expr()->in("d.cid", Kmdescr::$GARDEN_CIDS))
-      ->andWhere("d.tid = :tid");
+      ->andWhere($attributeQuery->expr()->in("d.cid", Kmdescr::$GARDEN_CIDS));
 
     foreach ($gardenTaxa as $taxa) {
       $tid = $taxa->getTid();
@@ -118,20 +133,21 @@
       $attribs = $attributeQuery->getQuery()->execute();
       $allAttribs = [];
       foreach ($attribs as $attrib) {
-        if (!array_key_exists($attrib["cid"], $allAttribs)) {
-          $allAttribs[$attrib["cid"]] = [];
+        $cid = $attrib["cid"];
+        if (!array_key_exists($cid, $allAttribs)) {
+          $allAttribs[$cid] = [];
         }
-        array_push($allAttribs[$attrib["cid"]], $attrib["charstatename"]);
+        array_push($allAttribs[$cid], $attrib["cs"]);
       }
 
       array_push($results, [
         "tid" => $tid,
-        "sciname" => $taxa->getSciname(),
+        "sciName" => $taxa->getSciname(),
         "basename" => $taxa->getBasename(),
         "vernacularNames" => $taxa->getVernacularNames(),
-        "thumbnailUrl" => $thumbnailQuery->getQuery()->execute()[0]["thumbnailurl"],
+        "thumbnailUrl" => resolve_img_path($thumbnailQuery->getQuery()->execute()[0]["thumbnailurl"]),
         "checklists" => array_map(function($cl) { return $cl["clid"]; }, $clQuery->getQuery()->execute()),
-        "attributes" => $allAttribs
+        "characteristics" => $allAttribs
       ]);
     }
 
@@ -142,65 +158,6 @@
 
     }
 
-
-//    # Select all garden taxa that have some sort of name
-//    $sql = get_select_statement(
-//        "taxa",
-//        [
-//            't.' . TaxaTbl::$TID,
-//            't.' . TaxaTbl::$SCINAME
-//        ]
-//    );
-//    // Abbreviation for 'taxa' table name
-//    $sql .= 't ';
-//
-//    $sql .= 'LEFT JOIN taxavernaculars v ON t.' . TaxaTbl::$TID . ' = v.' . TaxaVernacularTbl::$TID . ' ';
-//    $sql .= 'RIGHT JOIN fmchklsttaxalink chk ON t.' . TaxaTbl::$TID . ' = chk.' . FmChecklistTaxaLinkTbl::$TID . ' ';
-//    $sql .= 'WHERE chk.' . FmChecklistTaxaLinkTbl::$CLID . " = Fmchecklists::$CLID_GARDEN_ALL ";
-//
-//    if ($search === null) {
-//      $sql .= 'AND (t.' . TaxaTbl::$SCINAME . ' IS NOT NULL ';
-//      $sql .= 'OR v.' . TaxaVernacularTbl::$VERNACULAR_NAME . ' IS NOT NULL) ';
-//    }
-//    else {
-//      $sql .= 'AND (lower(t.' . TaxaTbl::$SCINAME . ") LIKE \"$search%\" ";
-//      $sql .= 'OR lower(v. ' . TaxaVernacularTbl::$VERNACULAR_NAME . ") LIKE \"$search%\") ";
-//    }
-//
-//    $sql .= 'GROUP BY t.' . TaxaTbl::$TID . ' ';
-//    $sql .= 'ORDER BY v.' . TaxaVernacularTbl::$VERNACULAR_NAME;
-//
-//    $resultsTmp = run_query($sql);
-//    $results = [];
-
-//    // Populate image urls
-//    foreach ($resultsTmp as $result) {
-//      $result = array_merge($result, get_attribs($result["tid"]));
-//      $result["image"] = get_thumbnail($result["tid"]);
-//
-//      $result["checklists"] = [];
-//      $clidsTemp = get_checklists($result["tid"]);
-//      foreach ($clidsTemp as $clid) {
-//        array_push($result["checklists"], $clid[FmChecklistTbl::$CLID]);
-//      }
-//
-//      $result["vernacular"] = [];
-//      $result["vernacular"]["names"] = [];
-//      $vernacularsTmp = get_vernacular_names($result["tid"]);
-//      foreach ($vernacularsTmp as $vn) {
-//        $basename_is_set = array_key_exists("basename", $result["vernacular"]);
-//
-//        if (!$basename_is_set && strtolower($vn[TaxaVernacularTbl::$LANGUAGE]) === 'basename') {
-//          $result["vernacular"]["basename"] = $vn[TaxaVernacularTbl::$VERNACULAR_NAME];
-//        } else {
-//          array_push($result["vernacular"]["names"], $vn[TaxaVernacularTbl::$VERNACULAR_NAME]);
-//        }
-//      }
-//      $result['vernacular']['names'] = array_unique($result["vernacular"]["names"]);
-//
-//      array_push($results, $result);
-//    }
-
     return $results;
   }
 
@@ -209,7 +166,14 @@
     $searchResults = get_canned_searches();
   } else if (key_exists("attr", $_GET) && is_numeric($_GET['attr'])) {
     $searchResults = get_all_attrib_vals(intval($_GET['attr']));
-  } else {
+  } else if (key_exists("chars", $_GET)) {
+    if ($_GET["chars"] === "true") {
+      $searchResults = get_garden_characteristics();
+    } else {
+      $searchResults = get_garden_characteristics(explode(',', $_GET["chars"]));
+    }
+  }
+  else {
     $searchResults = get_garden_taxa($_GET);
   }
 

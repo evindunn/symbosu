@@ -88,8 +88,7 @@ class Kmcs
      * @var \Kmcharacters
      *
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="NONE")
-     * @ORM\OneToOne(targetEntity="Kmcharacters")
+     * @ORM\ManyToOne(targetEntity="Kmcharacters", inversedBy="states")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="cid", referencedColumnName="cid")
      * })

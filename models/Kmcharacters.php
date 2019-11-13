@@ -1,7 +1,7 @@
 <?php
 
 
-
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -115,8 +115,22 @@ class Kmcharacters
      */
     private $hid;
 
+  /**
+   * @var ArrayCollection
+   * @ORM\OneToMany(targetEntity="kmcs", mappedBy="cid")
+   */
+    private $states;
 
-    /**
+    public function __construct() {
+      $this->states = new ArrayCollection();
+    }
+
+    public function getStates() {
+      return $this->states;
+    }
+
+
+  /**
      * Get cid.
      *
      * @return int
