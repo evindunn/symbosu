@@ -53,7 +53,6 @@
 
     // All tids that belong to Garden checklist
     $gardenTaxaQuery = $taxaRepo->createQueryBuilder("t")
-      ->select("t.tid")
       ->innerJoin("Fmchklsttaxalink", "tl", "WITH", "t.tid = tl.tid")
       ->innerJoin("Fmchecklists", "cl", "WITH", "tl.clid = cl.clid")
       ->where("cl.parentclid = " . Fmchecklists::$CLID_GARDEN_ALL);
@@ -69,10 +68,10 @@
         ->setParameter("search", "$search%");
     }
 
-    $gardenTids = array_map(function($taxa) { return $taxa["tid"]; }, $gardenTaxaQuery->getQuery()->execute());
+    $gardenTaxaModels = $gardenTaxaQuery->getQuery()->execute();
 
-    foreach ($gardenTids as $tid) {
-      $taxa = new TaxaManager($tid);
+    foreach ($gardenTaxaModels as $taxaModel) {
+      $taxa = TaxaManager::fromModel($taxaModel);
 
       array_push($results, array_merge(
           $taxa->getCharacteristics(),

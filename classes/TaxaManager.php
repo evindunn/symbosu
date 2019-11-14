@@ -31,21 +31,39 @@ class TaxaManager {
   private static $CID_ECOREGION = 19;
 
   // ORM Model
-  private $model;
+  protected $model;
 
-  private $basename;
-  private $images;
-  private $characteristics;
-  private $checklists;
+  protected $basename;
+  protected $images;
+  protected $characteristics;
+  protected $checklists;
 
-  public function __construct($tid) {
-    $em = SymbosuEntityManager::getEntityManager();
-    $taxaRepo = $em->getRepository("Taxa");
-    $this->model = $taxaRepo->find($tid);
-    $this->basename = $this->populateBasename();
-    $this->images = TaxaManager::populateImages($this->getTid());
-    $this->characteristics = TaxaManager::populateCharacteristics($this->getTid());
-    $this->checklists = TaxaManager::populateChecklists($this->getTid());
+  public function __construct($tid=-1) {
+    if ($tid !== -1) {
+      $em = SymbosuEntityManager::getEntityManager();
+      $taxaRepo = $em->getRepository("Taxa");
+      $this->model = $taxaRepo->find($tid);
+      $this->basename = $this->populateBasename();
+      $this->images = TaxaManager::populateImages($this->getTid());
+      $this->characteristics = TaxaManager::populateCharacteristics($this->getTid());
+      $this->checklists = TaxaManager::populateChecklists($this->getTid());
+    } else {
+      $this->model = null;
+      $this->basename = '';
+      $this->images = [];
+      $this->characteristics = [];
+      $this->checklists = [];
+    }
+  }
+
+  public static function fromModel($model) {
+    $newTaxa = new TaxaManager();
+    $newTaxa->model = $model;
+    $newTaxa->basename = $newTaxa->populateBasename();
+    $newTaxa->images = TaxaManager::populateImages($model->getTid());
+    $newTaxa->characteristics = TaxaManager::populateCharacteristics($model->getTid());
+    $newTaxa->checklists = TaxaManager::populateCharacteristics($model->getTid());
+    return $newTaxa;
   }
 
   function getTid() {
