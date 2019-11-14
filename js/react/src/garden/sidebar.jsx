@@ -5,8 +5,6 @@ import {SearchWidget} from "../common/search.jsx";
 import FeatureSelector from "./featureSelector.jsx";
 
 const CLIENT_ROOT = "..";
-const CID_WIDTH = 738;
-const CID_HEIGHT = 140;
 
 /**
  * @param valueArray {number[]} An array in the form [min, max]
@@ -78,23 +76,20 @@ function PlantNeed(props) {
       </label>
       <select
         name={ props.label.toLowerCase().replace(/[^a-z]/g, '') }
-        className="form-control ml-auto text-capitalize"
+        className="form-control ml-auto"
         style={{ maxWidth: "50%" }}
         value={ props.value }
         onChange={ props.onChange }>
         <option key="select" value="" disabled hidden>Select...</option>
         {
-          props.choices.map((opt) => {
-            return (
-              <option
-                key={ opt.cs }
-                value={ opt.cs }
-                className="text-capitalize"
-              >
-                { opt.charstatename }
-              </option>
-            );
-          })
+          props.choices.map((opt) =>
+            <option
+              key={ opt.toLowerCase().replace(/[^a-z]/g, '') }
+              value={ opt.toLowerCase().replace(/[^a-z]/g, '') }
+            >
+              { opt }
+            </option>
+          )
         }
       </select>
     </div>
@@ -279,23 +274,16 @@ class SideBar extends React.Component {
         {/* Sunlight & Moisture */}
         <div style={{ background: "white" }} className="rounded-border p-4">
           <h4>Plant needs</h4>
-          {
-            Object.keys(this.props.plantNeeds).map((i) => {
-              let plantNeed = this.props.plantNeeds[i];
-              return (
-                <PlantNeed
-                  key={ i }
-                  label={ plantNeed.charname }
-                  choices={
-                    Object.keys(plantNeed.states).map((j) => {
-                      return { cs: j, charstatename: plantNeed.states[j] }
-                    })
-                  }
-                  value={ plantNeed.value }
-                  onChange={ (e) => this.props.onPlantNeedChanged(i, e.target.value) } />
-              )
-            })
-          }
+          <PlantNeed
+            label="Sunlight"
+            choices={ ["Sun", "Part-Shade", "Full-Shade"] }
+            value={ this.props.sunlight }
+            onChange={ this.props.onSunlightChanged } />
+          <PlantNeed
+            label="Moisture"
+            choices={ ["Dry", "Moderate", "Wet"] }
+            value={ this.props.moisture }
+            onChange={ this.props.onMoistureChanged } />
         </div>
 
         {/* Sliders */}
@@ -309,7 +297,7 @@ class SideBar extends React.Component {
                 label="Height (ft)"
                 name="height"
                 value={ this.props.height }
-                onChange={ (e) => this.props.onPlantSizeChanged(CID_HEIGHT, e.target.value) } />
+                onChange={ this.props.onHeightChanged } />
             </div>
             <div
               style={{ width: "1px", borderRight: "1px dashed grey", marginLeft: "-0.5px" }}
@@ -320,7 +308,7 @@ class SideBar extends React.Component {
                 label="Width (ft)"
                 name="width"
                 value={ this.props.width }
-                onChange={ (e) => this.props.onPlantSizeChanged(CID_WIDTH, e.target.value) } />
+                onChange={ this.props.onWidthChanged } />
             </div>
           </div>
         </div>
@@ -329,15 +317,14 @@ class SideBar extends React.Component {
         <div>
           <SideBarDropdown title="Plant features">
             {
-              Object.keys(this.props.plantFeatures).map((i) => {
-                let plantFeature = this.props.plantFeatures[i];
+              Object.keys(this.props.plantFeatures).map((plantFeature) => {
                 return (
                   <FeatureSelector
-                    key={ i }
-                    title={ plantFeature.charname }
-                    items={ plantFeature.states }
+                    key={ plantFeature }
+                    title={ plantFeature }
+                    items={ this.props.plantFeatures[plantFeature] }
                     onChange={ (featureKey) => {
-                      this.props.onPlantFeaturesChanged(i, featureKey)
+                      this.props.onPlantFeaturesChanged(plantFeature, featureKey)
                     }}
                   />
                 )
@@ -347,15 +334,14 @@ class SideBar extends React.Component {
 
           <SideBarDropdown title="Growth & maintenance">
             {
-              Object.keys(this.props.growthMaintenance).map((i) => {
-                let plantFeature = this.props.growthMaintenance[i];
+              Object.keys(this.props.growthMaintenance).map((plantFeature) => {
                 return (
                   <FeatureSelector
-                    key={ i }
-                    title={ plantFeature.charname }
-                    items={ plantFeature.states }
+                    key={ plantFeature }
+                    title={ plantFeature }
+                    items={ this.props.growthMaintenance[plantFeature] }
                     onChange={ (featureKey) => {
-                      this.props.onGrowthMaintenanceChanged(i, featureKey)
+                      this.props.onGrowthMaintenanceChanged(plantFeature, featureKey)
                     }}
                   />
                 )
@@ -365,15 +351,14 @@ class SideBar extends React.Component {
 
           <SideBarDropdown title="Beyond the garden">
             {
-              Object.keys(this.props.beyondGarden).map((i) => {
-                let plantFeature = this.props.beyondGarden[i];
+              Object.keys(this.props.beyondGarden).map((plantFeature) => {
                 return (
                   <FeatureSelector
-                    key={ i }
-                    title={ plantFeature.charname }
-                    items={ plantFeature.states }
+                    key={ plantFeature }
+                    title={ plantFeature }
+                    items={ this.props.beyondGarden[plantFeature] }
                     onChange={ (featureKey) => {
-                      this.props.onBeyondGardenChanged(i, featureKey)
+                      this.props.onBeyondGardenChanged(plantFeature, featureKey)
                     }}
                   />
                 )

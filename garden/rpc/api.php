@@ -7,6 +7,7 @@
   global $SERVER_ROOT, $CHARSET;
 
   include_once($SERVER_ROOT . "/classes/Functional.php");
+
   include_once($SERVER_ROOT . "/meta/tables/fmchecklists.php");
   include_once($SERVER_ROOT . "/meta/tables/fmchklsttaxalink.php");
   include_once($SERVER_ROOT . "/meta/tables/images.php");
@@ -17,6 +18,60 @@
 
   include_once($SERVER_ROOT . "/config/SymbosuEntityManager.php");
   include_once($SERVER_ROOT . "/models/Fmchecklists.php");
+
+  $CLID_GARDEN_ALL = 54;
+
+  # Basic characteristics
+  $CID_SUNLIGHT = 680;
+  $CID_MOISTURE = 683;
+  $CID_WIDTH = 738;
+  $CID_HEIGHT = 140;
+
+  # Plant features
+  $CID_FLOWER_COLOR = 612;
+  $CID_BLOOM_MONTHS = 165;
+  $CID_WILDLIFE_SUPPORT = 685;
+  $CID_LIFESPAN = 136;
+  $CID_FOLIAGE_TYPE = 100;
+  $CID_PLANT_TYPE = 137;
+
+  # Growth & maintenance
+  $CID_LANDSCAPE_USES = 679;
+  $CID_CULTIVATION_PREFS = 767;
+  $CID_BEHAVIOR = 688;
+  $CID_PROPAGATION = 670;
+  $CID_EASE_GROWTH = 684;
+
+  # Beyond the garden
+  $CID_HABITAT = 163;
+  $CID_ECOREGION = 19;
+  
+  $CHARACTERISTICS_ALL = [
+    # Basic characteristics
+    $CID_SUNLIGHT,
+    $CID_MOISTURE,
+    $CID_WIDTH,
+    $CID_HEIGHT,
+
+    # Plant features
+    $CID_FLOWER_COLOR,
+    $CID_BLOOM_MONTHS,
+    $CID_WILDLIFE_SUPPORT,
+    $CID_LIFESPAN,
+    $CID_FOLIAGE_TYPE,
+    $CID_PLANT_TYPE,
+  
+    # Growth & maintenance
+    $CID_LANDSCAPE_USES,
+    $CID_CULTIVATION_PREFS,
+    $CID_BEHAVIOR,
+    $CID_PROPAGATION,
+    $CID_EASE_GROWTH,
+  
+    # Beyond the garden
+    $CID_HABITAT,
+    $CID_ECOREGION,
+  ];
 
   /**
    * Returns canned searches for the react page
@@ -39,36 +94,11 @@
     return $results;
   }
 
-  function get_garden_characteristics($cids=[]) {
+  function get_garden_characteristics($cid) {
     $em = SymbosuEntityManager::getEntityManager();
-    $characteristicRepo = $em->getRepository("Kmcharacters");
-    $csQuery = $characteristicRepo->createQueryBuilder("c")
-      ->distinct()
-      ->innerJoin("Kmdescr", "d", "WITH", "c.cid = d.cid")
-      ->innerJoin("Fmchklsttaxalink", "tl", "WITH", "d.tid = tl.tid")
-      ->where("tl.clid = " . Fmchecklists::$CLID_GARDEN_ALL);
-
-    if (count($cids) > 0) {
-      $csQuery->andWhere($csQuery->expr()->in("c.cid", ":cids"));
-      $csQuery->setParameter("cids", $cids);
-    }
-
-    $results = [];
-    foreach ($csQuery->getQuery()->execute() as $characteristic) {
-      $states = $characteristic->getStates()->toArray();
-      $statesMap = [];
-
-      foreach ($states as $cs) {
-        $statesMap[$cs->getCs()] = $cs->getCharstatename();
-      }
-
-      $results[$characteristic->getCid()] = [
-        "charname" => $characteristic->getCharname(),
-        "states" => $statesMap
-      ];
-    }
-
-    return $results;
+    $charStateRepo = $em->getRepository("Kmcs");
+    $csQuery = $charStateRepo->findBy([ "cid" => $cid ], ["sortsequence" => "ASC"]);
+    return array_map(function($cs) { return $cs->getCharstatename(); }, $csQuery);
   }
 
   /**
@@ -76,6 +106,13 @@
    * @params $_GET
    */
   function get_garden_taxa($params) {
+    global $CHARACTERISTICS_ALL;
+    global $CID_WIDTH, $CID_HEIGHT;
+    global $CID_MOISTURE, $CID_SUNLIGHT;
+    global $CID_FLOWER_COLOR, $CID_BLOOM_MONTHS, $CID_WILDLIFE_SUPPORT, $CID_LIFESPAN, $CID_FOLIAGE_TYPE, $CID_PLANT_TYPE;
+    global $CID_LANDSCAPE_USES, $CID_CULTIVATION_PREFS, $CID_BEHAVIOR, $CID_PROPAGATION, $CID_EASE_GROWTH;
+    global $CID_ECOREGION, $CID_HABITAT;
+
     $memory_limit = ini_get("memory_limit");
     ini_set("memory_limit", "1G");
     set_time_limit(0);
@@ -91,12 +128,17 @@
     $results = [];
 
     // All taxa that belong to Garden checklist
-    $gardenTaxa = $taxaRepo->createQueryBuilder("t")
+    $gardenTaxaQuery = $taxaRepo->createQueryBuilder("t")
       ->innerJoin("Fmchklsttaxalink", "tl", "WITH", "t.tid = tl.tid")
       ->innerJoin("Fmchecklists", "cl", "WITH", "tl.clid = cl.clid")
-      ->where("cl.parentclid = " . Fmchecklists::$CLID_GARDEN_ALL)
-      ->getQuery()
-      ->execute();
+      ->where("cl.parentclid = " . Fmchecklists::$CLID_GARDEN_ALL);
+
+    // TODO: Vernacularname
+    if ($search !== null) {
+      $gardenTaxaQuery->andWhere("(t.sciname LIKE $search)");
+    }
+
+    $gardenTaxa = $gardenTaxaQuery->getQuery()->execute();
 
     // All Checklists for a given tid
     $clQuery = $em->createQueryBuilder()
@@ -116,13 +158,13 @@
 
     // Attributes for the taxa
     $attributeQuery = $em->createQueryBuilder()
-      ->select(["c.cid", "s.cs"])
+      ->select(["d.cid", "s.charstatename"])
       ->from("Kmdescr", "d")
       ->innerJoin("Kmcs", "s", "WITH", "(d.cid = s.cid AND d.cs = s.cs)")
       ->innerJoin("Kmcharacters", "c", "WITH", "d.cid = c.cid")
       ->where("d.tid = :tid");
     $attributeQuery = $attributeQuery
-      ->andWhere($attributeQuery->expr()->in("d.cid", Kmdescr::$GARDEN_CIDS));
+      ->andWhere($attributeQuery->expr()->in("d.cid", $CHARACTERISTICS_ALL));
 
     foreach ($gardenTaxa as $taxa) {
       $tid = $taxa->getTid();
@@ -130,34 +172,121 @@
       $thumbnailQuery->setParameter("tid", $tid);
       $attributeQuery->setParameter("tid", $tid);
 
+      $attr_array = [
+        "height" => [],
+        "width" => [],
+        "sunlight" => [],
+        "moisture" => [],
+        "features" => [
+          "flower_color" => [],
+          "bloom_months" => [],
+          "wildlife_support" => [],
+          "lifespan" => [],
+          "foliage_type" => [],
+          "plant_type" => []
+        ],
+        "growth_maintenance" => [
+          "landscape_uses" => [],
+          "cultivation_prefs" => [],
+          "behavior" => [],
+          "propagation" => [],
+          "ease_growth" => [],
+        ],
+        "beyond_garden" => [
+          "eco_region" => [],
+          "habitat" => []
+        ]
+      ];
+
       $attribs = $attributeQuery->getQuery()->execute();
-      $allAttribs = [];
       foreach ($attribs as $attrib) {
-        $cid = $attrib["cid"];
-        if (!array_key_exists($cid, $allAttribs)) {
-          $allAttribs[$cid] = [];
+        $attr_key = $attrib["cid"];
+        $attr_val = $attrib["charstatename"];
+        switch ($attr_key) {
+          case $CID_HEIGHT:
+            array_push($attr_array["height"], intval($attr_val));
+            break;
+          case $CID_WIDTH:
+            array_push($attr_array["width"], intval($attr_val));
+            break;
+          case $CID_SUNLIGHT:
+            array_push($attr_array["sunlight"], $attr_val);
+            break;
+          case $CID_MOISTURE:
+            array_push($attr_array["moisture"], $attr_val);
+            break;
+          case $CID_FLOWER_COLOR:
+            array_push($attr_array["features"]["flower_color"], $attr_val);
+            break;
+          case $CID_BLOOM_MONTHS:
+            array_push($attr_array["features"]["bloom_months"], $attr_val);
+            break;
+          case $CID_WILDLIFE_SUPPORT:
+            array_push($attr_array["features"]["wildlife_support"], $attr_val);
+            break;
+          case $CID_LIFESPAN:
+            array_push($attr_array["features"]["lifespan"], $attr_val);
+            break;
+          case $CID_FOLIAGE_TYPE:
+            array_push($attr_array["features"]["foliage_type"], $attr_val);
+            break;
+          case $CID_PLANT_TYPE:
+            array_push($attr_array["features"]["plant_type"], $attr_val);
+            break;
+          case $CID_LANDSCAPE_USES:
+            array_push($attr_array["growth_maintenance"]["landscape_uses"], $attr_val);
+            break;
+          case $CID_CULTIVATION_PREFS:
+            array_push($attr_array["growth_maintenance"]["cultivation_prefs"], $attr_val);
+            break;
+          case $CID_BEHAVIOR:
+            array_push($attr_array["growth_maintenance"]["behavior"], $attr_val);
+            break;
+          case $CID_PROPAGATION:
+            array_push($attr_array["growth_maintenance"]["propagation"], $attr_val);
+            break;
+          case $CID_EASE_GROWTH:
+            array_push($attr_array["growth_maintenance"]["ease_growth"], $attr_val);
+            break;
+          case $CID_ECOREGION:
+            array_push($attr_array["beyond_garden"]["eco_region"], $attr_val);
+            break;
+          case $CID_HABITAT:
+            array_push($attr_array["beyond_garden"]["habitat"], $attr_val);
+            break;
+          default:
+            break;
         }
-        array_push($allAttribs[$cid], $attrib["cs"]);
       }
 
-      array_push($results, [
-        "tid" => $tid,
-        "sciName" => $taxa->getSciname(),
-        "basename" => $taxa->getBasename(),
-        "vernacularNames" => $taxa->getVernacularNames(),
-        "thumbnailUrl" => resolve_img_path($thumbnailQuery->getQuery()->execute()[0]["thumbnailurl"]),
-        "checklists" => array_map(function($cl) { return $cl["clid"]; }, $clQuery->getQuery()->execute()),
-        "characteristics" => $allAttribs
-      ]);
+      foreach (["width", "height"] as $k) {
+        if (count($attr_array[$k]) > 1) {
+          $tmp = [min($attr_array[$k]), max($attr_array[$k])];
+          $attr_array[$k] = $tmp;
+        }
+      }
+
+      // TODO: This could definitely be done better
+      array_push($results, array_merge(
+          $attr_array,
+          [
+            "tid" => $tid,
+            "sciName" => $taxa->getSciname(),
+            "vernacular" => [
+              "basename" => $taxa->getBasename(),
+              "names" => $taxa->getVernacularNames(),
+            ],
+            "image" => resolve_img_path($thumbnailQuery->getQuery()->execute()[0]["thumbnailurl"]),
+            "checklists" => array_map(function ($cl) {
+              return $cl["clid"];
+            }, $clQuery->getQuery()->execute()),
+          ]
+        )
+      );
     }
 
     ini_set("memory_limit", $memory_limit);
     set_time_limit(30);
-
-    if ($search !== null) {
-
-    }
-
     return $results;
   }
 
@@ -165,15 +294,8 @@
   if (key_exists("canned", $_GET) && $_GET["canned"] === "true") {
     $searchResults = get_canned_searches();
   } else if (key_exists("attr", $_GET) && is_numeric($_GET['attr'])) {
-    $searchResults = get_all_attrib_vals(intval($_GET['attr']));
-  } else if (key_exists("chars", $_GET)) {
-    if ($_GET["chars"] === "true") {
-      $searchResults = get_garden_characteristics();
-    } else {
-      $searchResults = get_garden_characteristics(explode(',', $_GET["chars"]));
-    }
-  }
-  else {
+    $searchResults = get_garden_characteristics(intval($_GET['attr']));
+  } else {
     $searchResults = get_garden_taxa($_GET);
   }
 
