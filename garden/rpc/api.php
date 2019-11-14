@@ -4,60 +4,6 @@
   include_once("$SERVER_ROOT/config/SymbosuEntityManager.php");
   include_once("$SERVER_ROOT/classes/TaxaManager.php");
 
-  $CLID_GARDEN_ALL = 54;
-
-  # Basic characteristics
-  $CID_SUNLIGHT = 680;
-  $CID_MOISTURE = 683;
-  $CID_WIDTH = 738;
-  $CID_HEIGHT = 140;
-
-  # Plant features
-  $CID_FLOWER_COLOR = 612;
-  $CID_BLOOM_MONTHS = 165;
-  $CID_WILDLIFE_SUPPORT = 685;
-  $CID_LIFESPAN = 136;
-  $CID_FOLIAGE_TYPE = 100;
-  $CID_PLANT_TYPE = 137;
-
-  # Growth & maintenance
-  $CID_LANDSCAPE_USES = 679;
-  $CID_CULTIVATION_PREFS = 767;
-  $CID_BEHAVIOR = 688;
-  $CID_PROPAGATION = 670;
-  $CID_EASE_GROWTH = 684;
-
-  # Beyond the garden
-  $CID_HABITAT = 163;
-  $CID_ECOREGION = 19;
-  
-  $CHARACTERISTICS_ALL = [
-    # Basic characteristics
-    $CID_SUNLIGHT,
-    $CID_MOISTURE,
-    $CID_WIDTH,
-    $CID_HEIGHT,
-
-    # Plant features
-    $CID_FLOWER_COLOR,
-    $CID_BLOOM_MONTHS,
-    $CID_WILDLIFE_SUPPORT,
-    $CID_LIFESPAN,
-    $CID_FOLIAGE_TYPE,
-    $CID_PLANT_TYPE,
-  
-    # Growth & maintenance
-    $CID_LANDSCAPE_USES,
-    $CID_CULTIVATION_PREFS,
-    $CID_BEHAVIOR,
-    $CID_PROPAGATION,
-    $CID_EASE_GROWTH,
-  
-    # Beyond the garden
-    $CID_HABITAT,
-    $CID_ECOREGION,
-  ];
-
   /**
    * Returns canned searches for the react page
    */
@@ -128,7 +74,6 @@
     foreach ($gardenTids as $tid) {
       $taxa = new TaxaManager($tid);
 
-      // TODO: This could definitely be done better
       array_push($results, array_merge(
           $taxa->getCharacteristics(),
           [
