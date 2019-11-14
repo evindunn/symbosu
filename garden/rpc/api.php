@@ -133,9 +133,15 @@
       ->innerJoin("Fmchecklists", "cl", "WITH", "tl.clid = cl.clid")
       ->where("cl.parentclid = " . Fmchecklists::$CLID_GARDEN_ALL);
 
-    // TODO: Vernacularname
     if ($search !== null) {
-      $gardenTaxaQuery->andWhere("(t.sciname LIKE $search)");
+      $gardenTaxaQuery
+        ->innerJoin("Taxavernaculars", "tv", "WITH", "t.tid = tv.tid")
+        ->andWhere($gardenTaxaQuery->expr()->orX(
+          $gardenTaxaQuery->expr()->like("t.sciname", ":search"),
+          $gardenTaxaQuery->expr()->like("tv.vernacularname", ":search")
+        ))
+        ->groupBy("t.tid")
+        ->setParameter("search", "$search%");
     }
 
     $gardenTaxa = $gardenTaxaQuery->getQuery()->execute();
