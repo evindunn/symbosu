@@ -1,47 +1,35 @@
 <?php
 include_once("../../config/symbini.php");
 
-global $SERVER_ROOT, $CHARSET;
-
-include_once($SERVER_ROOT . "/classes/Functional.php");
-include_once($SERVER_ROOT . "/meta/tables/fmchecklists.php");
-include_once($SERVER_ROOT . "/meta/tables/fmchklsttaxalink.php");
-include_once($SERVER_ROOT . "/meta/tables/images.php");
-include_once($SERVER_ROOT . "/meta/tables/kmcs.php");
-include_once($SERVER_ROOT . "/meta/tables/kmdescr.php");
-include_once($SERVER_ROOT . "/meta/tables/taxa.php");
-include_once($SERVER_ROOT . "/meta/tables/taxavernaculars.php");
+include_once("$SERVER_ROOT/config/SymbosuEntityManager.php");
+include_once("$SERVER_ROOT/classes/Functional.php");
 
 $result = [];
 
-
-function get_lg_image($tid) {
-  $sql = get_select_statement("images", [ ImageTbl::$URL ]);
-  $sql .= 'WHERE ' . ImageTbl::$TID . " = $tid ";
-  $sql .= 'ORDER BY ' . ImageTbl::$SORT_SEQUENCE . ' LIMIT 1;';
-  $res = run_query($sql);
-
-  if (count($res) > 0 && key_exists(ImageTbl::$URL, $res[0])) {
-    $result = $res[0][ImageTbl::$URL];
-    return resolve_img_path($result);
-  }
-
-  return "";
-}
+$CLID_GARDEN_ALL = 54;
 
 function getTaxon($tid) {
-  $sql = get_select_statement(
-    "taxa t",
-    [
-      't.' . TaxaTbl::$SCINAME,
-      'v.' . TaxaVernacularTbl::$VERNACULAR_NAME
-    ]
-  );
-  $sql .= 'LEFT JOIN taxavernaculars v ON v.' . TaxaVernacularTbl::$TID . ' = t.' . TaxaTbl::$TID . ' ';
-  $sql .= 'WHERE t.' . TaxaTbl::$TID . " = $tid";
+  $em = SymbosuEntityManager::getEntityManager();
+  $taxaRepo = $em->getRepository("Taxa");
+  $currentTaxa = $taxaRepo->find($tid);
 
-  $result = run_query($sql)[0];
-  $result["image"] = get_lg_image($tid);
+  $imageRepo = $em->getRepository("Images");
+  $taxaImages = array_map(
+    function($img) {
+      return [ "thumbnail" => resolve_img_path($img->getThumbnailurl()), "image" => resolve_img_path($img->getUrl()) ];
+    },
+    $imageRepo->findBy(["tid" => $tid], ["sortsequence" => "ASC"])
+  );
+
+  $result = [
+    "tid" => $tid,
+    "sciname" => $currentTaxa->getSciname(),
+    "vernacular" => [
+      "basename" => $currentTaxa->getBasename(),
+      "names" => $currentTaxa->getVernacularnames()
+    ],
+    "images" => $taxaImages
+  ];
 
   return $result;
 }

@@ -170,24 +170,13 @@ class Taxa
    */
     private $images;
 
-    /**
-     * @var string
-     */
-    private $basename;
-
     public function __construct() {
       $this->vernacularNames = new ArrayCollection();
       $this->images = new ArrayCollection();
-      $this->basename = null;
     }
 
     public function getVernacularNames() {
-      return array_unique(
-        $this->vernacularNames
-          ->map(function ($vn) { return $vn->getVernacularname(); })
-          ->filter(function($vn) { return $vn != $this->basename; })
-          ->toArray()
-      );
+      return $this->vernacularNames;
     }
 
     public function getImages() {
@@ -195,13 +184,7 @@ class Taxa
     }
 
     public function getBaseName() {
-      if ($this->basename == null) {
-        $this->basename = $this->vernacularNames
-          ->filter(function($vn) { return strtolower($vn->getLanguage()) == "basename"; })
-          ->first()
-          ->getVernacularname();
-      }
-      return $this->basename;
+      return '';
     }
 
     /**
