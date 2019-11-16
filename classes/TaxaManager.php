@@ -66,6 +66,10 @@ class TaxaManager {
     return $newTaxa;
   }
 
+  function isGardenTaxa() {
+    return in_array(Fmchecklists::$CLID_GARDEN_ALL, $this->getChecklists());
+  }
+
   function getTid() {
     return $this->model->getTid();
   }

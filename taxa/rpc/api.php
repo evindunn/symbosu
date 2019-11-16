@@ -3,6 +3,7 @@ include_once("../../config/symbini.php");
 
 include_once("$SERVER_ROOT/config/SymbosuEntityManager.php");
 include_once("$SERVER_ROOT/classes/Functional.php");
+include_once("$SERVER_ROOT/classes/TaxaManager.php");
 
 $result = [];
 
@@ -11,29 +12,35 @@ $CLID_GARDEN_ALL = 54;
 function getTaxon($tid) {
   $em = SymbosuEntityManager::getEntityManager();
   $taxaRepo = $em->getRepository("Taxa");
-  $currentTaxa = $taxaRepo->find($tid);
+  $taxaModel = $taxaRepo->find($tid);
 
-  $imageRepo = $em->getRepository("Images");
-  $taxaImages = array_map(
-    function($img) {
-      return [ "thumbnail" => resolve_img_path($img->getThumbnailurl()), "image" => resolve_img_path($img->getUrl()) ];
-    },
-    $imageRepo->findBy(["tid" => $tid], ["sortsequence" => "ASC"])
-  );
+  $taxa = TaxaManager::fromModel($taxaModel);
 
   $result = [
     "tid" => $tid,
-    "sciname" => $currentTaxa->getSciname(),
+    "sciname" => '',
+    "images" => [],
     "vernacular" => [
-      "basename" => $currentTaxa->getBasename(),
-      "names" => $currentTaxa->getVernacularnames()
+      "basename" => '',
+      "names" => []
     ],
-    "images" => $taxaImages
+    "isGardenTaxa" => false
   ];
+
+  if ($taxa != null) {
+    $result["sciname"] = $taxa->getSciname();
+    $result["images"] = $taxa->getImages();
+    $result["vernacular"] = [
+      "basename" => $taxa->getBasename(),
+      "names" => $taxa->getVernacularNames()
+    ];
+    $result["isGardenTaxa"] = $taxa->isGardenTaxa();
+  }
 
   return $result;
 }
 
+$result = [];
 if (array_key_exists("taxon", $_GET) && is_numeric($_GET["taxon"])) {
   $result = getTaxon($_GET["taxon"]);
 }
