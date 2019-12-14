@@ -6,7 +6,7 @@ A [Symbiota](http://symbiota.org) portal focusing on the vascular plants of Oreg
 The site features content that diverges significantly from the Symbiota project, while still adhering to the 
 Symbiota database structure and maintaining core Symbiota features.
 For the site content that differs from Symbiota, which includes the home page, garden page, and taxonomic profiles,
-the following OregonFlora diverges in the following ways: 
+OregonFlora development differs in the following ways: 
    - [Doctrine ORM](https://www.doctrine-project.org/projects/orm.html) is used to access the database, providing 
      an asynchronous JSON API. This is done mainly to decouple the PHP-based server-side code from the front end.
      [Composer](https://getcomposer.org/) is used as the build system.
