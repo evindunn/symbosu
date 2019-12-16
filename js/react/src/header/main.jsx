@@ -127,6 +127,26 @@ class HeaderApp extends React.Component {
     });
   }
 
+  getLoginButtons() {
+    if (this.props.userName !== "") {
+      return (
+        <HeaderButtonBar style={{ display: this.state.isCollapsed ? 'none' : 'flex' }}>
+          <div className="col header-button mx-auto my-auto">Hello, { this.props.userName }!</div>
+          <HeaderButton title="My Profile" href={ `${this.props.clientRoot}/profile/viewprofile.php` } />
+          <HeaderButton title="Logout" href={ `${this.props.clientRoot}/profile/index.php?submit=logout` } />
+        </HeaderButtonBar>
+      );
+    }
+
+    return (
+      <HeaderButtonBar style={{ display: this.state.isCollapsed ? 'none' : 'flex' }}>
+        <HeaderButton title="Contact" href={ `${this.props.clientRoot}/pages/contact.php` } />
+        <HeaderButton title="Donate" href={ `${this.props.clientRoot}/pages/donate.php` } />
+        <HeaderButton title="Login" href={ `${this.props.clientRoot}/profile/index.php?refurl=${ location.pathname }` } />
+      </HeaderButtonBar>
+    );
+  }
+
   render() {
     return (
       <nav
@@ -169,11 +189,7 @@ class HeaderApp extends React.Component {
         </div>
 
         <div className={ "ml-auto mr-4" + (this.state.isCollapsed ? " my-auto" : "") }>
-          <HeaderButtonBar style={{ display: this.state.isCollapsed ? 'none' : 'flex' }}>
-            <HeaderButton title="Contact" href={ `${this.props.clientRoot}/pages/contact.php` } />
-            <HeaderButton title="Donate" href={ `${this.props.clientRoot}/pages/donate.php` } />
-            <HeaderButton title="Login" href={ `${this.props.clientRoot}/profile/index.php?refurl=${ location.pathname }` } />
-          </HeaderButtonBar>
+          { this.getLoginButtons() }
 
           <div className="row">
             <SearchWidget
@@ -196,7 +212,7 @@ class HeaderApp extends React.Component {
 
 const domContainer = document.getElementById("react-header");
 const dataProps = JSON.parse(domContainer.getAttribute("data-props"));
-ReactDOM.render(<HeaderApp clientRoot={ dataProps["clientRoot"] } />, domContainer);
+ReactDOM.render(<HeaderApp clientRoot={ dataProps["clientRoot"] } userName={ dataProps["userName"] } />, domContainer);
 
       {/*
       <!-- Holds dropdowns on mobile -->

@@ -12,12 +12,12 @@
 
 <link
   rel='stylesheet'
-  href='<?php echo $GLOBALS["CLIENT_ROOT"] . "/css/compiled/theme.css"?>'
+  href='<?php echo "$CLIENT_ROOT/css/compiled/theme.css"?>'
   type='text/css'>
 
 <link
   rel='stylesheet'
-  href='<?php echo $GLOBALS["CLIENT_ROOT"] . "/css/compiled/header.css"?>'
+  href='<?php echo "$CLIENT_ROOT/css/compiled/header.css"?>'
   type='text/css'>
 
 <script
@@ -45,10 +45,13 @@
 </script>
 
 <!-- Render header -->
-<div id="react-header" data-props='{ "clientRoot": "<?php echo $GLOBALS["CLIENT_ROOT"] ?>" }'></div>
+<div
+  id="react-header"
+  data-props='{ "clientRoot": "<?php echo "$CLIENT_ROOT" ?>", "userName": "<?php echo ($USER_DISPLAY_NAME ? $USER_DISPLAY_NAME : '') ?>" }'>
+</div>
 
 <script
-  src='<?php echo $GLOBALS["CLIENT_ROOT"] . "/js/react/dist/header.js" ?>'
+  src='<?php echo "$CLIENT_ROOT/js/react/dist/header.js" ?>'
   type="text/javascript">
 </script>
 
