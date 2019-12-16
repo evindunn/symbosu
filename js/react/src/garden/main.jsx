@@ -76,7 +76,7 @@ function getAttributeArr(keymap) {
               "values": JSON.parse(res)
             };
           })
-      )
+      );
     }
     Promise.all(pArr).then((vals) => { resolve(vals); }).catch((err) => { reject(err); });
   });

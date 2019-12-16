@@ -79,10 +79,9 @@ class TaxaManager {
   }
 
   function getVernacularNames() {
-    $names = $this->model->getVernacularNames()
+    return $this->model->getVernacularNames()
       ->map(function($vn) { return $vn->getVernacularName(); })
       ->toArray();
-    return $names;
   }
 
   public function getBasename() {
