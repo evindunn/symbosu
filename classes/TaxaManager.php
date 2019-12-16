@@ -10,6 +10,8 @@ class TaxaManager {
   private static $CID_MOISTURE = 683;
   private static $CID_WIDTH = 738;
   private static $CID_HEIGHT = 140;
+  private static $CID_SPREADS = 739;
+  private static $CID_OTHER_CULT_PREFS = 767;
   
   # Plant features
   private static $CID_FLOWER_COLOR = 612;
@@ -122,11 +124,11 @@ class TaxaManager {
 
   private static function getEmptyCharacteristics() {
     return [
-        "height" => [],
-        "width" => [],
-        "sunlight" => [],
-        "moisture" => [],
-        "features" => [
+      "height" => [],
+      "width" => [],
+      "sunlight" => [],
+      "moisture" => [],
+      "features" => [
         "flower_color" => [],
         "bloom_months" => [],
         "wildlife_support" => [],
@@ -134,14 +136,16 @@ class TaxaManager {
         "foliage_type" => [],
         "plant_type" => []
       ],
-        "growth_maintenance" => [
+      "growth_maintenance" => [
         "landscape_uses" => [],
         "cultivation_prefs" => [],
         "behavior" => [],
         "propagation" => [],
         "ease_growth" => [],
+        "spreads_vigorously" => false,
+        "other_cult_prefs" => []
       ],
-        "beyond_garden" => [
+      "beyond_garden" => [
         "eco_region" => [],
         "habitat" => []
       ]
@@ -210,6 +214,12 @@ class TaxaManager {
           break;
         case TaxaManager::$CID_EASE_GROWTH:
           array_push($attr_array["growth_maintenance"]["ease_growth"], $attr_val);
+          break;
+        case TaxaManager::$CID_SPREADS:
+          $attr_array["growth_maintenance"]["spreads_vigorously"] = $attr_val === "yes" ? true : false;
+          break;
+        case TaxaManager::$CID_OTHER_CULT_PREFS:
+          array_push($attr_array["growth_maintenance"]["other_cult_prefs"], $attr_val);
           break;
         case TaxaManager::$CID_ECOREGION:
           array_push($attr_array["beyond_garden"]["eco_region"], $attr_val);
@@ -281,6 +291,8 @@ class TaxaManager {
       TaxaManager::$CID_BEHAVIOR,
       TaxaManager::$CID_PROPAGATION,
       TaxaManager::$CID_EASE_GROWTH,
+      TaxaManager::$CID_SPREADS,
+      TaxaManager::$CID_OTHER_CULT_PREFS,
   
         # Beyond the garden
       TaxaManager::$CID_HABITAT,

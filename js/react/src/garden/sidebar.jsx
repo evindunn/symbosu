@@ -70,7 +70,7 @@ class SideBarHeading extends React.Component {
  */
 function PlantNeed(props) {
   return (
-    <div className = "input-group pt-3 mt-3" style={{ borderTop: "1px dashed black" }}>
+    <div className = "input-group pt-3 mt-3 dashed-border">
       <label className="font-weight-bold" htmlFor={ props.label.toLowerCase() }>
         { props.label }
       </label>

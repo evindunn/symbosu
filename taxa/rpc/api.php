@@ -35,6 +35,7 @@ function getTaxon($tid) {
       "names" => $taxa->getVernacularNames()
     ];
     $result["isGardenTaxa"] = $taxa->isGardenTaxa();
+    $result["characteristics"] = $taxa->getCharacteristics();
   }
 
   return $result;
