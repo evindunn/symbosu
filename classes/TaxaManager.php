@@ -62,7 +62,7 @@ class TaxaManager {
     $newTaxa->basename = $newTaxa->populateBasename();
     $newTaxa->images = TaxaManager::populateImages($model->getTid());
     $newTaxa->characteristics = TaxaManager::populateCharacteristics($model->getTid());
-    $newTaxa->checklists = TaxaManager::populateCharacteristics($model->getTid());
+    $newTaxa->checklists = TaxaManager::populateChecklists($model->getTid());
     return $newTaxa;
   }
 
