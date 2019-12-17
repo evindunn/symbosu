@@ -19,23 +19,27 @@ function getTaxon($tid) {
   $result = [
     "tid" => $tid,
     "sciname" => '',
+    "description" => '',
+    "isGardenTaxa" => false,
     "images" => [],
     "vernacular" => [
       "basename" => '',
       "names" => []
     ],
-    "isGardenTaxa" => false
+    "characteristics" => []
   ];
 
   if ($taxa != null) {
     $result["sciname"] = $taxa->getSciname();
+    $result["description"] = $taxa->getDescription();
+    $result["isGardenTaxa"] = $taxa->isGardenTaxa();
     $result["images"] = $taxa->getImages();
     $result["vernacular"] = [
       "basename" => $taxa->getBasename(),
       "names" => $taxa->getVernacularNames()
     ];
-    $result["isGardenTaxa"] = $taxa->isGardenTaxa();
     $result["characteristics"] = $taxa->getCharacteristics();
+    $result["checklists"] = $taxa->getChecklists();
   }
 
   return $result;

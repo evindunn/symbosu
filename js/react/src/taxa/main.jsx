@@ -87,7 +87,7 @@ class TaxaApp extends React.Component {
             vernacularNames: res.vernacular.names,
             images: res.images,
             isGardenTaxa: res.isGardenTaxa,
-            description: "",
+            description: res.description,
             highlights: {
               "Plant type": plantType,
               "Size at maturity": sizeMaturity,
@@ -141,9 +141,8 @@ class TaxaApp extends React.Component {
               src={ this.state.images.length > 0 ? this.state.images[0].url : '' }
               alt={ this.state.sciName }
             />
-            <p>
-
-            </p>
+            {/* TODO: The database should be refactored to have the description as plaintext */}
+            <div className="mt-4" dangerouslySetInnerHTML={{ __html: this.state.description }}/>
           </div>
           <div className="col-auto mx-4">
             <SideBarSection title="Highlights" items={ this.state.highlights } />

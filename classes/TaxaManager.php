@@ -39,6 +39,7 @@ class TaxaManager {
   protected $images;
   protected $characteristics;
   protected $checklists;
+  protected $description;
 
   public function __construct($tid=-1) {
     if ($tid !== -1) {
@@ -49,12 +50,14 @@ class TaxaManager {
       $this->images = TaxaManager::populateImages($this->getTid());
       $this->characteristics = TaxaManager::populateCharacteristics($this->getTid());
       $this->checklists = TaxaManager::populateChecklists($this->getTid());
+      $this->description = $this->populateDescription();
     } else {
       $this->model = null;
       $this->basename = '';
       $this->images = [];
       $this->characteristics = [];
       $this->checklists = [];
+      $this->description = "";
     }
   }
 
@@ -65,22 +68,24 @@ class TaxaManager {
     $newTaxa->images = TaxaManager::populateImages($model->getTid());
     $newTaxa->characteristics = TaxaManager::populateCharacteristics($model->getTid());
     $newTaxa->checklists = TaxaManager::populateChecklists($model->getTid());
+    $newTaxa->description = $newTaxa->populateDescription($model->getTid());
     return $newTaxa;
   }
 
-  function isGardenTaxa() {
-    return in_array(Fmchecklists::$CLID_GARDEN_ALL, $this->getChecklists());
+  public function isGardenTaxa() {
+    // Since we only populate children of garden checklist anyway
+    return count($this->checklists) > 0;
   }
 
-  function getTid() {
+  public function getTid() {
     return $this->model->getTid();
   }
 
-  function getSciname() {
+  public function getSciname() {
     return $this->model->getSciname();
   }
 
-  function getVernacularNames() {
+  public function getVernacularNames() {
     return $this->model->getVernacularNames()
       ->map(function($vn) { return $vn->getVernacularName(); })
       ->toArray();
@@ -104,6 +109,28 @@ class TaxaManager {
 
   public function getChecklists() {
     return $this->checklists;
+  }
+
+  public function getDescription() {
+    return $this->description;
+  }
+
+  private function populateDescription() {
+    $em = SymbosuEntityManager::getEntityManager();
+    $stmts = $em->createQueryBuilder()
+      ->select(["ts.statement"])
+      ->from("Taxadescrstmt", "ts")
+      ->innerJoin("Taxadescrblock", "tb", "WITH", "ts.tdbid = tb.tdbid")
+      ->where("tb.tid = :tid")
+      ->orderBy("ts.sortsequence")
+      ->setParameter("tid", $this->getTid())
+      ->getQuery()
+      ->execute();
+
+    if (count($stmts) > 0) {
+      return $stmts[0]["statement"];
+    }
+    return "";
   }
 
   private static function populateChecklists($tid) {
