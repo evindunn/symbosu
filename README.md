@@ -15,7 +15,7 @@ OregonFlora development differs in the following ways:
 
 ### To build the back end:
 1. Follow the [Symbiota installation instructions](https://github.com/Symbiota/Symbiota/blob/master/docs/INSTALL.txt) 
-for Apache and PHP
+for Apache, PHP, and MariaDB/MySQL
 2. Install Composer for PHP
 3. Run the following in the repository root to install the PHP dependencies: `composer install`
 
