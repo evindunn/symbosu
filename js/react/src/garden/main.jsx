@@ -36,7 +36,7 @@ const CIDS_BEYOND_GARDEN = {
 };
 
 function getTaxaPage(tid) {
-  return `${CLIENT_ROOT}/taxa/garden.php?taxon=${tid}`;
+  return `${CLIENT_ROOT}/taxa/index.php?taxon=${tid}`;
 }
 
 function getCommonNameStr(item, searchText) {

@@ -141,8 +141,14 @@ class TaxaApp extends React.Component {
               src={ this.state.images.length > 0 ? this.state.images[0].url : '' }
               alt={ this.state.sciName }
             />
-            {/* TODO: The database should be refactored to have the description as plaintext */}
-            <div className="mt-4" dangerouslySetInnerHTML={{ __html: this.state.description }}/>
+            <p className="mt-4">
+              {/*
+                Description includes HTML tags & URL-encoded characters in the db.
+                It's dangerous to pull/render arbitrary HTML w/ react, so just render the
+                plain text & remove any HTML in it.
+              */}
+              { this.state.description.replace(/(<\/?[^>]+>)|(&[^;]+;)/g, "") }
+            </p>
           </div>
           <div className="col-auto mx-4">
             <SideBarSection title="Highlights" items={ this.state.highlights } />
