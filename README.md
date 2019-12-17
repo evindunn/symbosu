@@ -13,13 +13,16 @@ OregonFlora development differs in the following ways:
    - For the front end, [ReactJS](https://reactjs.org) and [Less](http://lesscss.org/) are used. 
    [NodeJS](https://nodejs.org/) is used as the build system.
 
+### To build the back end:
+1. Follow the [Symbiota installation instructions](https://github.com/Symbiota/Symbiota/blob/master/docs/INSTALL.txt) 
+for Apache and PHP
+2. Install Composer for PHP
+3. Run the following in the repository root to install the PHP dependencies: `composer install`
+
 ### To build the front end:
+Install NodeJS and run the following from [./js/react](./js/react/)
 1. Install the NodeJS dependences: `npm install`
 2. Build the React- and Less-based pages: `npm run build`
 
-For a development server that watches for changes in .js/.jsx/.less files and automatically rebuilds:
 
-`npm run devstart`
-
-### To build the back end:
-Install the PHP dependencies: `composer install`
+For a development server that watches for changes in .js/.jsx/.less files and automatically rebuilds them: `npm run devstart`
