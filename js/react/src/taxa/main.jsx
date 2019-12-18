@@ -166,7 +166,26 @@ TaxaApp.defaultProps = {
 };
 
 const domContainer = document.getElementById("react-taxa-app");
-ReactDOM.render(
-  <TaxaApp tid={ getUrlQueryParams(window.location.search).taxon || TaxaApp.defaultProps.tid } />,
-  domContainer
-);
+const queryParams = getUrlQueryParams(window.location.search);
+if (queryParams.search) {
+  httpGet(`./rpc/api.php?search=${queryParams.search}`).then((res) => {
+    res = JSON.parse(res);
+    if (res.length > 1) {
+      console.log(JSON.parse(res));
+    } else if (res.length > 0) {
+      ReactDOM.render(
+        <TaxaApp tid={res[0].tid }/>,
+        domContainer
+      );
+    }
+  }).catch((err) => {
+    console.error(err);
+  })
+} else if (queryParams.taxon) {
+  ReactDOM.render(
+    <TaxaApp tid={queryParams.taxon }/>,
+    domContainer
+  );
+} else {
+  window.location = "/";
+}

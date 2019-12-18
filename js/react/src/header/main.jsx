@@ -106,7 +106,8 @@ class HeaderApp extends React.Component {
 
   onSearch() {
     this.setState({ isLoading: true });
-    window.location = `${this.props.clientRoot}/taxa/index.php?common=` + encodeURIComponent(`${this.state.searchText}`);
+    console.log(this.state.searchText);
+    window.location = `${this.props.clientRoot}/taxa/index.php?search=` + encodeURIComponent(this.state.searchText);
   }
 
   componentDidMount() {
@@ -193,14 +194,10 @@ class HeaderApp extends React.Component {
 
           <div className="row">
             <SearchWidget
-              name="search-header"
               placeholder="Search all plants"
               isLoading={ this.state.isLoading }
               onClick={ this.onSearch }
               onChange={ this.onSearchTextChanged }
-              value={ this.state.searchText }
-              autoComplete={ true }
-              autoCompleteUrl={ `${this.props.clientRoot}/webservices/autofillsearch.php` }
               clientRoot={ this.props.clientRoot }
             />
           </div>

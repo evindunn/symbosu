@@ -1,4 +1,5 @@
 import React from "react";
+import httpGet from "./httpGet";
 
 /**
  * Sidebar 'plant search' button
@@ -27,47 +28,98 @@ function SearchButton(props) {
 export class SearchWidget extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      currentValue: "",
+      suggestions: [],
+      showSuggestions: false
+    };
     this.onKeyUp = this.onKeyUp.bind(this);
-  }
-
-  componentDidMount() {
-    const autoComplete = $(`#autocomplete-${this.props.name}`).autoComplete({
-      minLength: 2,
-      formatResult: (item) => {
-        return item.text;
-      }
-    });
-
-    autoComplete.on("autocomplete.select", (item) => {
-      this.props.onChange(item);
-      this.props.onClick();
-    })
+    this.onBlur = this.onBlur.bind(this);
+    this.onFocus = this.onFocus.bind(this);
+    this.onSuggestionsRequested = this.onSuggestionsRequested.bind(this);
+    this.onSuggestionsClear = this.onSuggestionsClear.bind(this);
+    this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
+    this.onSearchTextChanged = this.onSearchTextChanged.bind(this);
   }
 
   onKeyUp(event) {
     const enterKey = 13;
-    if ((event.which || event.keyCode) === enterKey && !this.props.isLoading) {
+    if (this.state.value === '') {
+      this.onSuggestionsClear();
+    } else if ((event.which || event.keyCode) === enterKey && !this.props.isLoading) {
       event.preventDefault();
-      const fakeEvent = {target: {value: this.props.value}};
+      const fakeEvent = { target: { value: this.state.currentValue }};
       this.props.onClick(fakeEvent);
+    } else {
+      this.onSuggestionsRequested();
     }
+  }
+
+  onBlur() {
+    this.setState({ showSuggestions: false });
+  }
+
+  onFocus() {
+    this.setState({ showSuggestions: true })
+  }
+
+  onSuggestionsRequested() {
+    httpGet(`../../webservices/autofillsearch.php?q=${this.state.currentValue}`).then((res) => {
+      return JSON.parse(res);
+    }).catch((err) => {
+      console.error(err);
+    }).then((suggestionList) => {
+      this.setState({ suggestions: suggestionList });
+    });
+  }
+
+  onSuggestionSelected(suggestion) {
+    console.log(suggestion);
+    this.setState({ currentValue: suggestion });
+  }
+
+  onSuggestionsClear() {
+    this.setState({ suggestions: [] });
+  }
+
+  onSearchTextChanged() {
+    this.setState({ currentValue: event.target.value });
+    this.props.onChange(event.target.value);
   }
 
   render() {
     return (
       <div className="search-widget input-group w-100 mb-4 p-2" style={ this.props.style }>
-        <input
-          id={ `autocomplete-${ this.props.name }` }
-          name="search"
-          type="text"
-          name={ this.props.name }
-          placeholder={ this.props.placeholder }
-          className="form-control"
-          onKeyUp={this.onKeyUp}
-          onChange={this.props.onChange}
-          value={this.props.value}
-          autoComplete={ this.props.autoComplete ? 'on' : 'off' }
-          data-url={ this.props.autoCompleteUrl }/>
+        <div className="dropdown">
+          <input
+            name="search"
+            type="text"
+            placeholder={ this.props.placeholder }
+            className="form-control"
+            onKeyUp={ this.onKeyUp }
+            onChange={ this.onSearchTextChanged }
+            onBlur={ this.onBlur }
+            onFocus={ this.onFocus }
+            value={ this.state.currentValue }/>
+          <div
+            style={{ display: (this.state.showSuggestions && this.state.suggestions.length > 0 ? "initial" : "none") }}
+            className="dropdown-menu"
+          >
+            {
+              this.state.suggestions.map((s) => {
+                return (
+                  <button
+                    key={ s }
+                    onClick={ () => { console.log("Did it"); this.onSuggestionSelected(s); } }
+                    className="dropdown-item"
+                  >
+                    { s }
+                  </button>
+                )
+              })
+            }
+          </div>
+        </div>
         <SearchButton
           onClick={this.props.onClick}
           isLoading={this.props.isLoading}
@@ -80,9 +132,7 @@ export class SearchWidget extends React.Component {
 }
 
 SearchWidget.defaultProps = {
-  name: '',
-  autoComplete: false,
-  autoCompleteUrl: '',
+  onChange: () => {},
   buttonStyle: {},
   clientRoot: ''
 };
