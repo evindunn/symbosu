@@ -340,8 +340,8 @@ class GardenPageApp extends React.Component {
     }
   }
 
-  onSearchTextChanged(event) {
-    this.setState({ searchText: event.target.value });
+  onSearchTextChanged(text) {
+    this.setState({ searchText: text });
   }
 
   // On search start

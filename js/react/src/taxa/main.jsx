@@ -6,7 +6,7 @@ import { getUrlQueryParams } from "../common/queryParams.js";
 function BorderedItem(props) {
   let value = props.value;
   const isArray = Array.isArray(props.value);
-  const showResult = !isArray || props.value.length > 0;
+  const showResult = (!isArray && value !== '') || props.value.length > 0;
 
   if (isArray) {
     value = (
@@ -77,9 +77,21 @@ class TaxaApp extends React.Component {
 
           const width = res.characteristics.width;
           const height = res.characteristics.height;
-          let sizeMaturity = height.length > 1 ? `${height[0]}-${height[height.length - 1]}` : `${height[0]}`;
-          sizeMaturity += "' high, " + (width.length > 1 ? `${width[0]}-${width[width.length - 1]}` : `${width[0]}`);
-          sizeMaturity += "' wide";
+          let sizeMaturity = "";
+          if (height.length > 0) {
+            sizeMaturity += height.length > 1 ? `${height[0]}-${height[height.length - 1]}` : `${height[0]}`;
+            sizeMaturity += "' high";
+          }
+          if (width.length > 0) {
+            if (sizeMaturity !== '') {
+              sizeMaturity += ", ";
+            }
+            sizeMaturity += (width.length > 1 ? `${width[0]}-${width[width.length - 1]}` : `${width[0]}`);
+            sizeMaturity += "' wide";
+          }
+
+          let ease_growth = res.characteristics.growth_maintenance.ease_growth;
+          ease_growth = ease_growth.length > 0 ? ease_growth[0] : "";
 
           this.setState({
             sciName: res.sciname,
@@ -93,7 +105,7 @@ class TaxaApp extends React.Component {
               "Size at maturity": sizeMaturity,
               "Cultivation tolerances": res.characteristics.sunlight,
               "Wildlife support": res.characteristics.features.wildlife_support,
-              "Ease of growth": res.characteristics.growth_maintenance.ease_growth[0]
+              "Ease of growth": ease_growth
             },
             plantFacts: {
               "Plant Type": plantType,

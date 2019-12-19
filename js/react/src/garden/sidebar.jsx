@@ -264,11 +264,8 @@ class SideBar extends React.Component {
           placeholder="Search plants by name"
           onChange={ this.props.onSearchTextChanged }
           onClick={ this.props.onSearch }
-          value={ this.props.searchText }
           isLoading={ this.props.isLoading }
           clientRoot={ CLIENT_ROOT }
-          autoComplete={ true }
-          autoCompleteUrl={ `${CLIENT_ROOT}/garden/rpc/autofillsearch.php` }
         />
 
         {/* Sunlight & Moisture */}

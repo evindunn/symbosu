@@ -85,6 +85,6 @@ else if (array_key_exists("taxon", $_GET) && is_numeric($_GET["taxon"])) {
 }
 
 // Begin View
-header("Content-Type: application/json; charset=UTF-8");
-echo json_encode($result, JSON_NUMERIC_CHECK);
+header("Content-Type: application/json; charset=utf-8");
+echo json_encode($result, JSON_NUMERIC_CHECK | JSON_INVALID_UTF8_SUBSTITUTE);
 ?>

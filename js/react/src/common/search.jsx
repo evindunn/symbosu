@@ -81,33 +81,31 @@ export class SearchWidget extends React.Component {
 
   render() {
     return (
-      <div className="search-widget input-group w-100 mb-4 p-2" style={ this.props.style }>
-        <div className="dropdown">
-          <input
-            name="search"
-            type="text"
-            className="form-control"
-            autoComplete="off"
-            data-toggle="dropdown"
-            placeholder={ this.props.placeholder }
-            onKeyUp={ this.onKeyUp }
-            onChange={ this.onSearchTextChanged }
-            value={ this.state.currentValue }/>
-          <div className="dropdown-menu" style={{ display: (this.state.suggestions.length > 0 ? "" : "none") }}>
-            {
-              this.state.suggestions.map((s) => {
-                return (
-                  <button
-                    key={ s }
-                    onClick={ () => { this.onSuggestionSelected(s); } }
-                    className="dropdown-item"
-                  >
-                    { s }
-                  </button>
-                )
-              })
-            }
-          </div>
+      <div className="search-widget dropdown input-group w-100 mb-4 p-2" style={ this.props.style }>
+        <input
+          name="search"
+          type="text"
+          className="form-control"
+          autoComplete="off"
+          data-toggle="dropdown"
+          placeholder={ this.props.placeholder }
+          onKeyUp={ this.onKeyUp }
+          onChange={ this.onSearchTextChanged }
+          value={ this.state.currentValue }/>
+        <div className="dropdown-menu" style={{ display: (this.state.suggestions.length > 0 ? "" : "none") }}>
+          {
+            this.state.suggestions.map((s) => {
+              return (
+                <button
+                  key={ s }
+                  onClick={ () => { this.onSuggestionSelected(s); } }
+                  className="dropdown-item"
+                >
+                  { s }
+                </button>
+              )
+            })
+          }
         </div>
         <SearchButton
           onClick={this.props.onClick}

@@ -127,10 +127,15 @@ class TaxaManager {
       ->getQuery()
       ->execute();
 
+    $result = "";
     if (count($stmts) > 0) {
-      return $stmts[0]["statement"];
+      // Somebody must've copied & pasted from Word or something
+      $result = mb_convert_encoding($stmts[0]["statement"], "UTF-8", "Windows-1252");
+      if (!$result) {
+        return $stmts[0]["statement"];
+      }
     }
-    return "";
+    return $result;
   }
 
   private static function populateChecklists($tid) {
