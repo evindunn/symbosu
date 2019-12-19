@@ -31,11 +31,8 @@ export class SearchWidget extends React.Component {
     this.state = {
       currentValue: "",
       suggestions: [],
-      showSuggestions: false
     };
     this.onKeyUp = this.onKeyUp.bind(this);
-    this.onBlur = this.onBlur.bind(this);
-    this.onFocus = this.onFocus.bind(this);
     this.onSuggestionsRequested = this.onSuggestionsRequested.bind(this);
     this.onSuggestionsClear = this.onSuggestionsClear.bind(this);
     this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
@@ -44,7 +41,7 @@ export class SearchWidget extends React.Component {
 
   onKeyUp(event) {
     const enterKey = 13;
-    if (this.state.value === '') {
+    if (this.state.currentValue === '') {
       this.onSuggestionsClear();
     } else if ((event.which || event.keyCode) === enterKey && !this.props.isLoading) {
       event.preventDefault();
@@ -53,14 +50,6 @@ export class SearchWidget extends React.Component {
     } else {
       this.onSuggestionsRequested();
     }
-  }
-
-  onBlur() {
-    this.setState({ showSuggestions: false });
-  }
-
-  onFocus() {
-    this.setState({ showSuggestions: true })
   }
 
   onSuggestionsRequested() {
@@ -74,16 +63,19 @@ export class SearchWidget extends React.Component {
   }
 
   onSuggestionSelected(suggestion) {
-    console.log(suggestion);
-    this.setState({ currentValue: suggestion });
+    this.onSearchTextChanged({ target: { value: suggestion } }, this.onSuggestionsClear);
   }
 
   onSuggestionsClear() {
     this.setState({ suggestions: [] });
   }
 
-  onSearchTextChanged() {
-    this.setState({ currentValue: event.target.value });
+  onSearchTextChanged(event) {
+    this.setState({ currentValue: event.target.value }, () => {
+      if (this.state.currentValue === '') {
+        this.onSuggestionsClear();
+      }
+    });
     this.props.onChange(event.target.value);
   }
 
@@ -94,23 +86,20 @@ export class SearchWidget extends React.Component {
           <input
             name="search"
             type="text"
-            placeholder={ this.props.placeholder }
             className="form-control"
+            autoComplete="off"
+            data-toggle="dropdown"
+            placeholder={ this.props.placeholder }
             onKeyUp={ this.onKeyUp }
             onChange={ this.onSearchTextChanged }
-            onBlur={ this.onBlur }
-            onFocus={ this.onFocus }
             value={ this.state.currentValue }/>
-          <div
-            style={{ display: (this.state.showSuggestions && this.state.suggestions.length > 0 ? "initial" : "none") }}
-            className="dropdown-menu"
-          >
+          <div className="dropdown-menu" style={{ display: (this.state.suggestions.length > 0 ? "" : "none") }}>
             {
               this.state.suggestions.map((s) => {
                 return (
                   <button
                     key={ s }
-                    onClick={ () => { console.log("Did it"); this.onSuggestionSelected(s); } }
+                    onClick={ () => { this.onSuggestionSelected(s); } }
                     className="dropdown-item"
                   >
                     { s }

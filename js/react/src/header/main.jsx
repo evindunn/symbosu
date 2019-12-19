@@ -100,8 +100,8 @@ class HeaderApp extends React.Component {
     this.onSearch = this.onSearch.bind(this);
   }
 
-  onSearchTextChanged() {
-    this.setState({ searchText: event.target.value });
+  onSearchTextChanged(text) {
+    this.setState({ searchText: text });
   }
 
   onSearch() {
