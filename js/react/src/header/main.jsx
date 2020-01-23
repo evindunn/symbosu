@@ -107,6 +107,7 @@ class HeaderApp extends React.Component {
     this.setState({ searchText: e.target.value });
   }
 
+  // "searchObj" is the JSON object returned from ../webservices/autofillsearch.php
   onSearch(searchObj) {
     this.setState({ isLoading: true });
     let targetUrl = `${this.props.clientRoot}/taxa/`;
@@ -117,8 +118,8 @@ class HeaderApp extends React.Component {
       targetUrl += `search.php?genus=${searchObj.taxonId}&genusName=${searchObj.text}`;
 
     } else {
-      if (searchObj.value) {
-        targetUrl += `index.php?taxon=${searchObj.value}`;
+      if (searchObj.taxonId) {
+        targetUrl += `index.php?taxon=${searchObj.taxonId}`;
       } else {
         targetUrl += `search.php?search=${ encodeURIComponent(searchObj.text) }`;
       }
