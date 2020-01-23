@@ -18,6 +18,8 @@ class TaxaSearchResults extends React.Component {
   render() {
     return (
       <div className="mx-auto my-5 py-2" style={{ maxWidth: "75%" }}>
+        <h1 style={{ display: this.props.family !== null ? "initial" : "none"  }}>Search results for the { this.props.family } family</h1>
+        <h1 style={{ display: this.props.genus !== null ? "intial" : "none" }}>Search results for the { this.props.genus } genus</h1>
         <SearchResultContainer viewType={ this.state.viewType }>
           {
             this.props.results.map((result) => {
@@ -43,11 +45,14 @@ class TaxaSearchResults extends React.Component {
 }
 
 TaxaSearchResults.defaultProps = {
-  results: []
+  results: [],
+  family: null,
+  genus: null
 };
 
 const domContainer = document.getElementById("react-taxa-search-app");
 const queryParams = getUrlQueryParams(window.location.search);
+
 if (queryParams.search) {
   httpGet(`./rpc/api.php?search=${queryParams.search}`).then((res) => {
     res = JSON.parse(res);
@@ -64,6 +69,24 @@ if (queryParams.search) {
   }).catch((err) => {
     console.error(err);
   })
+} else if (queryParams.family) {
+  httpGet(`./rpc/api.php?family=${queryParams.family}`).then((res) => {
+    res = JSON.parse(res);
+    ReactDOM.render(<TaxaSearchResults results={ res } family={ queryParams.familyName } />, domContainer);
+
+  }).catch((err) => {
+    console.error(err);
+  });
+
+} else if (queryParams.genus) {
+  httpGet(`./rpc/api.php?genus=${queryParams.genus}`).then((res) => {
+    res = JSON.parse(res);
+    ReactDOM.render(<TaxaSearchResults results={ res } genus={ queryParams.genusName } />, domContainer);
+
+  }).catch((err) => {
+    console.error(err);
+  });
+
 } else {
   window.location = "/";
 }

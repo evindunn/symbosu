@@ -2,6 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom";
 import SearchWidget from "../common/search.jsx";
 
+const RANK_FAMILY = 140;
+const RANK_GENUS = 180;
+
 const dropDowns = [
   { title: "Explore Our Site" },
   { title: "Resources" },
@@ -107,11 +110,20 @@ class HeaderApp extends React.Component {
   onSearch(searchObj) {
     this.setState({ isLoading: true });
     let targetUrl = `${this.props.clientRoot}/taxa/`;
-    if (searchObj.value !== -1) {
-      targetUrl += `index.php?taxon=${searchObj.value}`;
+    if (searchObj.rankId && searchObj.rankId === RANK_FAMILY) {
+      targetUrl += `search.php?family=${searchObj.taxonId}&familyName=${searchObj.text}`;
+
+    } else if (searchObj.rankId && searchObj.rankId === RANK_GENUS) {
+      targetUrl += `search.php?genus=${searchObj.taxonId}&genusName=${searchObj.text}`;
+
     } else {
-      targetUrl += `search.php?search=${ encodeURIComponent(searchObj.text) }`;
+      if (searchObj.value) {
+        targetUrl += `index.php?taxon=${searchObj.value}`;
+      } else {
+        targetUrl += `search.php?search=${ encodeURIComponent(searchObj.text) }`;
+      }
     }
+
     window.location = targetUrl;
   }
 
